@@ -1,0 +1,24 @@
+[submodule "Common/MU"]
+	path = Common/MU
+	url = https://github.com/Microsoft/mu_plus.git
+	branch = release/201911
+[submodule "MU_BASECORE"]
+	path = MU_BASECORE
+	url = https://github.com/Microsoft/mu_basecore.git
+	branch = release/201911
+[submodule "Common/MU_TIANO"]
+	path = Common/MU_TIANO
+	url = https://github.com/Microsoft/mu_tiano_plus.git
+	branch = release/201911
+[submodule "Silicon/ARM/MU_TIANO"]
+	path = Silicon/ARM/MU_TIANO
+	url = https://github.com/Microsoft/mu_silicon_arm_tiano.git
+	branch = release/201911
+[submodule "Common/MU_OEM_SAMPLE"]
+	path = Common/MU_OEM_SAMPLE
+	url = https://github.com/Microsoft/mu_oem_sample.git
+	branch = release/201911
+[submodule "Silicon/ARM/RockChip"]
+	path = Silicon/ARM/RockChip
+	url = git@github.com:jwinarske/MU_PLATFORM_ROCKCHIP.git
+	branch = master
