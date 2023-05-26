@@ -1,0 +1,44 @@
+[submodule "Common/MU"]
+	path = Common/MU
+	url = https://github.com/Microsoft/mu_plus.git
+	branch = release/202302
+[submodule "MU_BASECORE"]
+	path = MU_BASECORE
+	url = https://github.com/Microsoft/mu_basecore.git
+	branch = release/202302
+[submodule "Common/MU_TIANO"]
+	path = Common/MU_TIANO
+	url = https://github.com/Microsoft/mu_tiano_plus.git
+	branch = release/202302
+[submodule "Silicon/ARM/MU_TIANO"]
+	path = Silicon/ARM/MU_TIANO
+	url = https://github.com/Microsoft/mu_silicon_arm_tiano.git
+	branch = release/202302
+[submodule "Common/MU_OEM_SAMPLE"]
+	path = Common/MU_OEM_SAMPLE
+	url = https://github.com/Microsoft/mu_oem_sample.git
+	branch = release/202302
+[submodule "Features/MM_SUPV"]
+	path = Features/MM_SUPV
+	url = https://github.com/microsoft/mu_feature_mm_supv/
+	branch = main
+[submodule "Features/CONFIG"]
+	path = Features/CONFIG
+	url = https://github.com/microsoft/mu_feature_config
+	branch = main
+[submodule "Features/DFCI"]
+	path = Features/DFCI
+	url = https://github.com/microsoft/mu_feature_dfci
+	branch = main
+[submodule "SecureBoot/ms-tpm-20-ref"]
+	path = SecureBoot/ms-tpm-20-ref
+	url = https://github.com/Microsoft/ms-tpm-20-ref.git
+[submodule "SecureBoot/optee_os"]
+	path = SecureBoot/optee_os
+	url = https://github.com/OP-TEE/optee_os.git
+[submodule "IPL/levinboot"]
+	path = IPL/levinboot
+	url = https://gitlab.com/DeltaGem/levinboot.git
+[submodule "IPL/rkbin"]
+	path = IPL/rkbin
+	url = https://github.com/rockchip-linux/rkbin.git

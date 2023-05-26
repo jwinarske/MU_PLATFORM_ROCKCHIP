@@ -1,0 +1,6 @@
+Conf
+Build
+__pycache__
+Platforms/*/__pycache__
+
+.idea
