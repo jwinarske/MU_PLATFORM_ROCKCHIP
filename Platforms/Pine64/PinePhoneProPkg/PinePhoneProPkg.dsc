@@ -439,6 +439,11 @@
   MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
 
   #
+  # Fastboot
+  #
+  EmbeddedPkg/Application/AndroidFastboot/AndroidFastbootApp.inf
+
+  #
   # UEFI Network Stack
   #
   NetworkPkg/DpcDxe/DpcDxe.inf

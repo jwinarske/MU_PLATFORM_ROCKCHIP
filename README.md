@@ -17,6 +17,7 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-t
 ### Build PinebookPro UEFI
 
     export GCC5_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-
+    export PYTOOL_TEMPORARILY_IGNORE_NESTED_EDK_PACKAGES=true
     stuart_setup -c Platforms/Pine64/PinebookPkg/PlatformBuild.py
     stuart_update -c Platforms/Pine64/PinebookPkg/PlatformBuild.py
     stuart_build -c Platforms/Pine64/PinebookPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
@@ -24,6 +25,7 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-t
 ### Build PinePhonePro UEFI
 
     export GCC5_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-
+    export PYTOOL_TEMPORARILY_IGNORE_NESTED_EDK_PACKAGES=true
     stuart_setup -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py
     stuart_update -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py
     stuart_build -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
@@ -34,3 +36,8 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-t
     stuart_setup -c Platforms/FriendlyElec/R5CPkg/PlatformBuild.py
     stuart_update -c Platforms/FriendlyElec/R5CPkg/PlatformBuild.py
     stuart_build -c Platforms/FriendlyElec/R5CPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
+
+### JTAG Setup
+
+    sudo dnf install openocd
+    sudo openocd -s ../tcl -f /usr/share/openocd/scripts/interface/jlink.cfg -f ./JTAG/rk3399/openocd_rk3399.cfg -c "adapter speed 15000"
