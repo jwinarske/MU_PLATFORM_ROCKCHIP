@@ -14,11 +14,19 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-t
 
     pip3 install -r pip-requirements.txt
 
-### Build OemPkg
+### Build PinebookPro UEFI
 
-    stuart_setup -c Platforms/FriendlyElec/OemPkg/PlatformBuild.py
-    stuart_update -c Platforms/FriendlyElec/OemPkg/PlatformBuild.py
-    stuart_build -c Platforms/FriendlyElec/OemPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
+    export GCC5_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-
+    stuart_setup -c Platforms/Pine64/PinebookPkg/PlatformBuild.py
+    stuart_update -c Platforms/Pine64/PinebookPkg/PlatformBuild.py
+    stuart_build -c Platforms/Pine64/PinebookPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
+
+### Build PinePhonePro UEFI
+
+    export GCC5_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-
+    stuart_setup -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py
+    stuart_update -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py
+    stuart_build -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
 
 ### Build R5C
 
