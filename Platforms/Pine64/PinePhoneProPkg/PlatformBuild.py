@@ -1,8 +1,8 @@
 # @file
-# Script to Build R5C Mu UEFI firmware
+# Script to Build Pine Phone Pro Mu UEFI firmware
 #
 # Copyright (c) Microsoft Corporation.
-# Copyright (c) Joel Winarske.
+# Copyright (c) 2023, Joel Winarske <joel.winarske@gmail.com>
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
 import os
@@ -41,14 +41,13 @@ class CommonPlatform:
     """ Common settings for this platform.  Define static data here and use
         for the different parts of stuart
     """
-    PackagesSupported = ("R5CPkg",)
+    PackagesSupported = ("PinePhoneProPkg",)
     ArchSupported = (["AARCH64", ])
     TargetsSupported = ("DEBUG", "RELEASE")
     Scopes = ('edk2-build', 'cibuild', 'configdata')
     WorkspaceRoot = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     PackagesPath = [
-        "Platforms/FriendlyElec/R5CPkg",
-        "Platforms/Rk356xPkg",
+        "Platforms/Pine64/PinePhoneProPkg",
         "MU_BASECORE",
         "Common/MU",
         "Common/MU_TIANO",
@@ -183,10 +182,10 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, PrEvalSetting
 
         The tuple should be (<workspace relative path to dsc file>, <input dictionary of dsc key value pairs>)
         """
-        return "FriendlyElec/R5CPkg/R5CPkg.dsc", {}
+        return "Pine64/PinePhoneProPkg/PinePhoneProPkg.dsc", {}
 
     def GetName(self):
-        return 'R5C'
+        return 'PinePhonePro'
 
     def GetPackagesPath(self):
         """ Return a list of paths that should be mapped as edk2 PackagesPath """
@@ -249,8 +248,8 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
         # followed by one with the flag. self.FlashImage will be true if the
         # --FlashOnly flag is passed, meaning we will keep separate build and run logs
         if self.FlashImage:
-            return "R5CPkg_Run"
-        return "R5CPkg"
+            return "PinePhoneProPkg_Run"
+        return "PinePhoneProPkg"
 
     def GetLoggingLevel(self, logger_type):
         """ Get the logging level for a given type
@@ -260,13 +259,13 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
         md   == markdown file logging
         """
         # return logging.DEBUG
-        return logging.INFO
-        # return super().GetLoggingLevel(logger_type)
+        # return logging.INFO
+        return super().GetLoggingLevel(logger_type)
 
     def SetPlatformEnv(self):
         logging.debug("PlatformBuilder SetPlatformEnv")
-        self.env.SetValue("PRODUCT_NAME", "R5C", "Platform Hardcoded")
-        self.env.SetValue("ACTIVE_PLATFORM", "Platforms/FriendlyElec/R5CPkg/R5CPkg.dsc", "Platform Hardcoded")
+        self.env.SetValue("PRODUCT_NAME", "PinePhonePro", "Platform Hardcoded")
+        self.env.SetValue("ACTIVE_PLATFORM", "Platforms/Pine64/PinePhoneProPkg/PinePhoneProPkg.dsc", "Platform Hardcoded")
         self.env.SetValue("TARGET_ARCH", "AARCH64", "Platform Hardcoded")
         self.env.SetValue("DISABLE_DEBUG_MACRO_CHECK", "TRUE", "Default to true")
         self.env.SetValue("EMPTY_DRIVE", "FALSE", "Default to false")
@@ -283,20 +282,20 @@ class PlatformBuilder(UefiBuilder, BuildSettingsManager):
         # the retail MFCI cert
         self.env.SetValue("BLD_*_SHIP_MODE", "FALSE", "Default")
         self.env.SetValue("CONF_AUTOGEN_INCLUDE_PATH",
-                          self.mws.join(self.ws, "Platforms", "FriendlyElec", "R5CPkg", "Include"), "Platform Defined")
+                          self.mws.join(self.ws, "Platforms", "Pine64", "PinePhoneProPkg", "Include"), "Platform Defined")
 
-        self.env.SetValue("YAML_POLICY_FILE", self.mws.join(self.ws, "R5CPkg", "PolicyData", "PolicyDataUsb.yaml"),
+        self.env.SetValue("YAML_POLICY_FILE", self.mws.join(self.ws, "PinePhoneProPkg", "PolicyData", "PolicyDataUsb.yaml"),
                           "Platform Hardcoded")
-        self.env.SetValue("POLICY_DATA_STRUCT_FOLDER", self.mws.join(self.ws, "R5CPkg", "Include"), "Platform Defined")
-        self.env.SetValue('POLICY_REPORT_FOLDER', self.mws.join(self.ws, "R5CPkg", "PolicyData"), "Platform Defined")
-        self.env.SetValue('MU_SCHEMA_DIR', self.mws.join(self.ws, "Platforms", "FriendlyElec", "R5CPkg", "CfgData"),
+        self.env.SetValue("POLICY_DATA_STRUCT_FOLDER", self.mws.join(self.ws, "PinePhoneProPkg", "Include"), "Platform Defined")
+        self.env.SetValue('POLICY_REPORT_FOLDER', self.mws.join(self.ws, "PinePhoneProPkg", "PolicyData"), "Platform Defined")
+        self.env.SetValue('MU_SCHEMA_DIR', self.mws.join(self.ws, "Platforms", "Pine64", "PinePhoneProPkg", "CfgData"),
                           "Platform Defined")
-        self.env.SetValue('MU_SCHEMA_FILE_NAME', "R5CPkgCfgData.xml", "Platform Hardcoded")
+        self.env.SetValue('MU_SCHEMA_FILE_NAME', "PinePhoneProPkgCfgData.xml", "Platform Hardcoded")
         self.env.SetValue('CONF_PROFILE_PATHS',
-                          self.mws.join(self.ws, 'Platforms', 'FriendlyElec', 'R5CPkg', 'CfgData',
-                                        'Profile0R5CPkgCfgData.csv') + " " +
-                          self.mws.join(self.ws, 'Platforms', 'FriendlyElec', 'R5CPkg', 'CfgData',
-                                        'Profile1R5CPkgCfgData.csv'),
+                          self.mws.join(self.ws, 'Platforms', 'Pine64', 'PinePhoneProPkg', 'CfgData',
+                                        'Profile0PinePhoneProPkgCfgData.csv') + " " +
+                          self.mws.join(self.ws, 'Platforms', 'Pine64', 'PinePhoneProPkg', 'CfgData',
+                                        'Profile1PinePhoneProPkgCfgData.csv'),
                           "Platform Hardcoded"
                           )
 

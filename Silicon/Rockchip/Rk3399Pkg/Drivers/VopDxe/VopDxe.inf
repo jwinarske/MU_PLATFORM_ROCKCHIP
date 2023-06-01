@@ -1,0 +1,43 @@
+## @file
+#
+# Copyright (c) 2019, Andrey Warkentin <andrey.warkentin@gmail.com>
+#
+# SPDX-License-Identifier:     GPL-2.0
+#
+##
+
+[Defines]
+  INF_VERSION                     = 0x0001001a
+  BASE_NAME                       = VopDxe
+  FILE_GUID                       = 295e7c2a-37b2-4b85-8683-718588654321
+  MODULE_TYPE                     = DXE_DRIVER
+  VERSION_STRING                  = 1.0
+  ENTRY_POINT                     = InitializeVopDxe
+
+[Sources.common]
+  VopDxe.c
+  dw_hdmi.c
+  edid.c
+  rk_vop.c
+  rk3399_vop.c
+
+[Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/Rockchip/Rk3399Pkg/Rk3399Pkg.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  IoLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiLib
+  TimerLib
+  CRULib
+
+[Depex]
+  TRUE

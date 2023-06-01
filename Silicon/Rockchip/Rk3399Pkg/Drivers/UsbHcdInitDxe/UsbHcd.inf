@@ -1,0 +1,43 @@
+## @file
+#
+# Copyright (C) 2010-2011 Texas Instruments Incorporated - http://www.ti.com
+# Copyright 2015 Freescale Semiconductor, Inc.
+# Copyright (C) 2016 Rockchip, Inc.
+# Copyright 2017 NXP
+# Copyright (c) 2019, Andrey Warkentin <andrey.warkentin@gmail.com>
+#
+# SPDX-License-Identifier:     GPL-2.0
+#
+##
+
+[Defines]
+  INF_VERSION                     = 0x0001001a
+  BASE_NAME                       = UsbHcdDxe
+  FILE_GUID                       = 196e7c2a-37b2-4b85-8683-718588952449
+  MODULE_TYPE                     = DXE_DRIVER
+  VERSION_STRING                  = 1.0
+  ENTRY_POINT                     = InitializeUsbHcd
+
+[Sources.common]
+  UsbHcd.c
+
+[Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/Rockchip/Rk3399Pkg/Rk3399Pkg.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  IoLib
+  MemoryAllocationLib
+  NonDiscoverableDeviceRegistrationLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiLib
+  TimerLib
+
+[Depex]
+  TRUE
