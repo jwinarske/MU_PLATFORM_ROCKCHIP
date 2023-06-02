@@ -45,3 +45,6 @@
 [submodule "Silicon/OP-TEE/optee_os"]
 	path = Silicon/OP-TEE/optee_os
 	url = https://github.com/OP-TEE/optee_os.git
+[submodule "Silicon/Arm/TFA"]
+	path = Silicon/Arm/TFA
+	url = https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
