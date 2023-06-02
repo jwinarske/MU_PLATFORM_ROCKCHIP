@@ -68,6 +68,7 @@ Build OPTEE OS
    CFG_CORE_HEAP_SIZE=524288 CFG_CORE_DYN_SHM=y CFG_RPMB_TESTKEY=y \
    CFG_REE_FS=n CFG_CORE_ARM64_PA_BITS=48  CFG_TEE_CORE_LOG_LEVEL=1 \
    CFG_TEE_TA_LOG_LEVEL=1 CFG_SCTLR_ALIGNMENT_CHECK=n \
+   CFG_TA_DEBUG=1 \
    CFG_TEE_BENCHMARK=n \
    CFG_CORE_SEL1_SPMC=y \
    CFG_ULIBS_SHARED=y \
@@ -93,13 +94,29 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/a
     mkdir trusted-firmware-a
     tar -xf trusted-firmware-a.tar.gz -C trusted-firmware-a
     cd trusted-firmware-a
+
+Clean build bl31.elf, bl31.bin, fip.bin
+
     make \
     CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 \
     BL32=../optee_os/out/arm-plat-rockchip/core/tee.bin SPD=opteed \
+    CFG_TA_MEASURED_BOOT=1 \
+    CFG_TEE_TA_LOG_LEVEL=4 \
+    CFG_TA_DEBUG=1 \
     clean fip \
     V=1
 
-Implicitly cleans tree and creates fip image with bl31.bin
+    BL33=../Build/PinePhoneProPkg/DEBUG_GCC5/FV/PINE_PHONE_PRO_UEFI.fd
+
+Print fip.bin info
+
+    tools/fiptool/fiptool --verbose info ./SecureBoot/trusted-firmware-a/build/rk3399/debug/fip.bin
+    DEBUG: toc_header[name]: 0xAA640001
+    DEBUG: toc_header[serial_number]: 0x12345678
+    DEBUG: toc_header[flags]: 0x0
+    EL3 Runtime Firmware BL31: offset=0x88, size=0xFF882000, cmdline="--soc-fw", sha256=09bf3b2f2266f7d4b57c905fd2623e853e0c716b68de461c8888e9d6f622f27a
+    Secure Payload BL32 (Trusted OS): offset=0xFF882088, size=0x95904, cmdline="--tos-fw", sha256=c63b2a2a2dde5edb72689e875f53ae47ae3ece5d3b9696921eafbeba288ae878
+
 
 Useful Variables:
 

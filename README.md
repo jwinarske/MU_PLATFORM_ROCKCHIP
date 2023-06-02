@@ -30,6 +30,10 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-t
     stuart_update -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py
     stuart_build -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
 
+levinboot for loading via USB:
+
+    sudo tools/usbtool --call sramstage-usb.bin --bulk --load 4200000 path/to/trusted-firmware-a/build/rk3399/release/bl31/bl31.elf --load 4000000 dramstage.bin --start 4000000 4102000
+
 ### Build R5C
 
     export GCC5_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-

@@ -10,10 +10,6 @@
 	path = Common/MU_TIANO
 	url = https://github.com/Microsoft/mu_tiano_plus.git
 	branch = release/202302
-[submodule "Silicon/ARM/MU_TIANO"]
-	path = Silicon/ARM/MU_TIANO
-	url = https://github.com/Microsoft/mu_silicon_arm_tiano.git
-	branch = release/202302
 [submodule "Common/MU_OEM_SAMPLE"]
 	path = Common/MU_OEM_SAMPLE
 	url = https://github.com/Microsoft/mu_oem_sample.git
@@ -42,3 +38,7 @@
 [submodule "IPL/rkbin"]
 	path = IPL/rkbin
 	url = https://github.com/rockchip-linux/rkbin.git
+[submodule "Silicon/Arm/MU_TIANO"]
+	path = Silicon/Arm/MU_TIANO
+	url = https://github.com/Microsoft/mu_silicon_arm_tiano.git
+	branch = release/202302
