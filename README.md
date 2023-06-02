@@ -41,6 +41,20 @@ levinboot for loading via USB:
     stuart_update -c Platforms/FriendlyElec/R5CPkg/PlatformBuild.py
     stuart_build -c Platforms/FriendlyElec/R5CPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
 
+### levin boot usb loader or Pinebook Pro
+
+    CROSS=aarch64-linux-gnu
+    export CC=$CROSS-gcc
+    export OBJCOPY=$CROSS-objcopy
+    export LD=$CROSS-ld
+
+    cd IPL/levinboot
+    git apply ../../SecureBoot/patches/0001-Fix-for-aarch64-linux-gnu-gcc-12.2.1.patch
+
+    mkdir _build && cd _build
+    CFLAGS="-O3 -mno-outline-atomics" ../configure.py --payload-{lz4,gzip,zstd,initcpio,sd,emmc,nvme,spi} --with-tf-a-headers ../../../Silicon/Arm/TFA/include/export --boards pbp
+    ninja
+
 ### JTAG Setup
 
     sudo dnf install openocd

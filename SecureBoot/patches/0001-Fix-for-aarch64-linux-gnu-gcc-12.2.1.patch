@@ -1,0 +1,26 @@
+From 16368c730c8bf71a94f1f7aa86b5ec793132dcea Mon Sep 17 00:00:00 2001
+From: Joel Winarske <joel.winarske@gmail.com>
+Date: Fri, 2 Jun 2023 10:54:07 -0700
+Subject: [PATCH] Fix for aarch64-linux-gnu-gcc 12.2.1
+
+Signed-off-by: Joel Winarske <joel.winarske@gmail.com>
+---
+ include/dump_mem.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/dump_mem.h b/include/dump_mem.h
+index 5e24fb2..f19c48b 100644
+--- a/include/dump_mem.h
++++ b/include/dump_mem.h
+@@ -8,7 +8,7 @@
+ #include <plat.h>
+ 
+ static inline void UNUSED dump_mem(volatile const void *mem, size_t size) {
+-	char buf[16], line[71];
++	char buf[16], line[256];
+ 	printf("memory dump starting at %"PRIxPTR":\n", (uintptr_t)mem);
+ 	for (size_t pos = 0; pos < size; pos += ARRAY_SIZE(buf)) {
+ 		const char *start = (const char *)mem + pos;
+-- 
+2.40.1
+

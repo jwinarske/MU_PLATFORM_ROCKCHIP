@@ -10,13 +10,14 @@ Build optee-os-tadevkit
    
     pip3 install pycryptodome
 
-    cd optee_os
-    git apply ../patches/optee_os/0001-allow-setting-sysroot-for-libgcc-lookup.patch
-    git apply ../patches/optee_os/0002-optee-enable-clang-support.patch
-    git apply ../patches/optee_os/0003-core-link-add-no-warn-rwx-segments.patch
-    git apply ../patches/optee_os/0004-core-Define-section-attributes-for-clang.patch
+    cd Silicon/OP-TEE/optee_os
+    git apply ../../../SecureBoot/patches/optee_os/0001-allow-setting-sysroot-for-libgcc-lookup.patch
+    git apply ../../../SecureBoot/patches/optee_os/0002-optee-enable-clang-support.patch
+    git apply ../../../SecureBoot/patches/optee_os/0003-core-link-add-no-warn-rwx-segments.patch
+    git apply ../../../SecureBoot/patches/optee_os/0004-core-Define-section-attributes-for-clang.patch
 
-    
+    export PATH=$PATH:/home/joel/Downloads/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin
+
     make \
     CROSS_COMPILE=arm-none-linux-gnueabihf- \
     PLATFORM=rockchip \
@@ -39,24 +40,24 @@ Build optee-os-tadevkit
 
 Build Trusted App (TA) fTPM
 
-    cd ms-tpm-20-ref
+   
+    cd Silicon/MSFT/ms-tpm-20-ref
     git submodule update --init --recursive
-    git apply ../patches/fTPM/0001-add-enum-to-ta-flags.patch
+    git apply ../../../SecureBoot/patches/fTPM/0001-add-enum-to-ta-flags.patch
     cd Samples/ARM32-FirmwareTPM/optee_ta
     make \
     TA_CROSS_COMPILE=aarch64-linux-gnu- \
     TA_CPU=cortex-a55 \
     CFG_FTPM_USE_WOLF=y \
-    TA_DEV_KIT_DIR=`pwd`/../../../../optee_os/out/arm-plat-rockchip/export-ta_arm64 \
-    OPTEE_CLIENT_EXPORT=`pwd`/../../../../optee_os/out/usr/ \
-    TEEC_EXPORT=`pwd`/../../../../optee_os/out/usr/ \
-    -I`pwd`/../../../../optee_os \
+    TA_DEV_KIT_DIR=`pwd`/../../../../../OP-TEE/optee_os/out/arm-plat-rockchip/export-ta_arm64 \
+    OPTEE_CLIENT_EXPORT=`pwd`/../../../../../OP-TEE/optee_os/out/usr/ \
+    TEEC_EXPORT=`pwd`/../../../../../OP-TEE/optee_os/out/usr/ \
+    -I`pwd`/../../../../../OP-TEE/optee_os \
     CFG_ARM64_ta_arm64=y \
     -j
 
 
 Build OPTEE OS
-   
 
    make \
    CROSS_COMPILE=arm-none-linux-gnueabihf- \
@@ -76,7 +77,7 @@ Build OPTEE OS
    OPTEE_CLIENT_EXPORT=`pwd`/out/usr \
    TEEC_EXPORT=`pwd`/out/usr \
    NOWERROR=1 \
-   EARLY_TA_PATHS=`pwd`/../ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
+   EARLY_TA_PATHS=`pwd`/../../MSFT/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
    V=1 all -j
 
 
@@ -90,33 +91,34 @@ https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
 https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz?rev=71e595a1f2b6457bab9242bc4a40db90&hash=37B0C59767BAE297AEB8967E7C54705BAE9A4B95
 
 
-    wget https://review.trustedfirmware.org/changes/TF-A%2Ftrusted-firmware-a~16952/revisions/11/archive?format=tgz -O trusted-firmware-a.tar.gz
-    mkdir trusted-firmware-a
-    tar -xf trusted-firmware-a.tar.gz -C trusted-firmware-a
-    cd trusted-firmware-a
-
 Clean build bl31.elf, bl31.bin, fip.bin
 
+    cd Silicon/Arm/TFA
     make \
     CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 \
-    BL32=../optee_os/out/arm-plat-rockchip/core/tee.bin SPD=opteed \
+    BL32=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.bin SPD=opteed \
     CFG_TA_MEASURED_BOOT=1 \
     CFG_TEE_TA_LOG_LEVEL=4 \
     CFG_TA_DEBUG=1 \
     clean fip \
     V=1
 
+Artifact
+
+    Silicon/Arm/TFA/build/rk3399/release/bl31.bin
+    Silicon/Arm/TFA/build/rk3399/release/fip.bin
+    Silicon/Arm/TFA/build/rk3399/release/bl31/bl31.elf
+
     BL33=../Build/PinePhoneProPkg/DEBUG_GCC5/FV/PINE_PHONE_PRO_UEFI.fd
 
 Print fip.bin info
 
-    tools/fiptool/fiptool --verbose info ./SecureBoot/trusted-firmware-a/build/rk3399/debug/fip.bin
+    tools/fiptool/fiptool --verbose info ./build/rk3399/release/fip.bin
     DEBUG: toc_header[name]: 0xAA640001
     DEBUG: toc_header[serial_number]: 0x12345678
     DEBUG: toc_header[flags]: 0x0
-    EL3 Runtime Firmware BL31: offset=0x88, size=0xFF882000, cmdline="--soc-fw", sha256=09bf3b2f2266f7d4b57c905fd2623e853e0c716b68de461c8888e9d6f622f27a
-    Secure Payload BL32 (Trusted OS): offset=0xFF882088, size=0x95904, cmdline="--tos-fw", sha256=c63b2a2a2dde5edb72689e875f53ae47ae3ece5d3b9696921eafbeba288ae878
-
+    EL3 Runtime Firmware BL31: offset=0x88, size=0xFF882000, cmdline="--soc-fw", sha256=d9739120b9952e0cfda1b4187f26d256883383e66ff676f4a710ab5f32fa34ae
+    Secure Payload BL32 (Trusted OS): offset=0xFF882088, size=0xA0DB4, cmdline="--tos-fw", sha256=d61b5b820ac75a29e21f032787ea912f8e59dcd65c5e5442d212398ef86ff1e8
 
 Useful Variables:
 
