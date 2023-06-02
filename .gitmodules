@@ -29,9 +29,6 @@
 [submodule "SecureBoot/ms-tpm-20-ref"]
 	path = SecureBoot/ms-tpm-20-ref
 	url = https://github.com/Microsoft/ms-tpm-20-ref.git
-[submodule "SecureBoot/optee_os"]
-	path = SecureBoot/optee_os
-	url = https://github.com/OP-TEE/optee_os.git
 [submodule "IPL/levinboot"]
 	path = IPL/levinboot
 	url = https://gitlab.com/DeltaGem/levinboot.git
