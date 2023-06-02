@@ -26,9 +26,6 @@
 	path = Features/DFCI
 	url = https://github.com/microsoft/mu_feature_dfci
 	branch = main
-[submodule "SecureBoot/ms-tpm-20-ref"]
-	path = SecureBoot/ms-tpm-20-ref
-	url = https://github.com/Microsoft/ms-tpm-20-ref.git
 [submodule "IPL/levinboot"]
 	path = IPL/levinboot
 	url = https://gitlab.com/DeltaGem/levinboot.git
@@ -45,3 +42,6 @@
 [submodule "Silicon/Rockchip/rkbin"]
 	path = Silicon/Rockchip/rkbin
 	url = https://github.com/rockchip-linux/rkbin.git
+[submodule "Silicon/MSFT/ms-tpm-20-ref"]
+	path = Silicon/MSFT/ms-tpm-20-ref
+	url = https://github.com/Microsoft/ms-tpm-20-ref.git
