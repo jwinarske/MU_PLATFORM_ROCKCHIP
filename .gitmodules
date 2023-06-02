@@ -32,9 +32,6 @@
 [submodule "IPL/levinboot"]
 	path = IPL/levinboot
 	url = https://gitlab.com/DeltaGem/levinboot.git
-[submodule "IPL/rkbin"]
-	path = IPL/rkbin
-	url = https://github.com/rockchip-linux/rkbin.git
 [submodule "Silicon/Arm/MU_TIANO"]
 	path = Silicon/Arm/MU_TIANO
 	url = https://github.com/Microsoft/mu_silicon_arm_tiano.git
@@ -45,3 +42,6 @@
 [submodule "Silicon/Arm/TFA"]
 	path = Silicon/Arm/TFA
 	url = https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
+[submodule "Silicon/Rockchip/rkbin"]
+	path = Silicon/Rockchip/rkbin
+	url = https://github.com/rockchip-linux/rkbin.git
