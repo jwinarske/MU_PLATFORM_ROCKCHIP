@@ -42,3 +42,6 @@
 	path = Silicon/Arm/MU_TIANO
 	url = https://github.com/Microsoft/mu_silicon_arm_tiano.git
 	branch = release/202302
+[submodule "Silicon/OP-TEE/optee_os"]
+	path = Silicon/OP-TEE/optee_os
+	url = https://github.com/OP-TEE/optee_os.git
