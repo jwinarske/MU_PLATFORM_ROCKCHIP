@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2020 Rockchip Electronic Co.,Ltd
  *
- * Simple U-boot fit source file containing ATF/OP-TEE/UEFI/dtb
+ * Simple UEFI fit source file containing ATF/OP-TEE/UEFI/dtb
  */
 
 /dts-v1/;
@@ -11,13 +11,13 @@
 	#address-cells = <1>;
 
 	images {
-		uboot {
+		uefi {
 			description = "UEFI";
 			data-position = <0x00100000>;
 			data-size = <0x100000>;
 			type = "standalone";
 			arch = "arm64";
-			os = "U-Boot";
+			os = "UEFI";
 			compression = "none";
 			load = <0x00a00000>;
 		};
@@ -88,7 +88,7 @@
 			description = "@BOARDTYPE@";
 			rollback-index = <0x0>;
 			firmware = "atf-1";
-			loadables = "uboot", "atf-2", "atf-3", "optee";
+			loadables = "uefi", "atf-2", "atf-3", "optee";
 			
 			fdt = "fdt";
 			signature {

@@ -9,6 +9,9 @@ UEFI_BUILD_TYPE=DEBUG_GCC5
 
 RKBIN=../Silicon/Rockchip/rkbin
 
+# SD Image Layout
+SD_IMG_OFFSET_UEFI=$((1024 * 1024 / 512))
+
 build_uefi() (
   echo " => Building UEFI.bin"
   board=$1
@@ -34,6 +37,7 @@ build_idblock() {
     sed 's/^uart baudrate=.*$/uart baudrate=115200/' |
     sed 's/^dis_printf_training=.*$/dis_printf_training=1/' \
       >ddrbin_param.txt
+  # generate ddrbin_param_dump.txt
   ${RKBIN}/tools/ddrbin_tool ./ddrbin_param.txt ${RKBIN}/${DDR}
   ${RKBIN}/tools/ddrbin_tool -g ./ddrbin_param_dump.txt ${RKBIN}/${DDR}
 
@@ -54,10 +58,17 @@ build_fit() {
   type=$2
   board_upper=$(echo $board | tr '[:lower:]' '[:upper:]')
   echo " => Building FIT"
+  # extract regions to relocate from elf, save each as .bin
   ./extractbl31.py ${RKBIN}/${BL31}
+
+  # create .its from template
   cat uefi.its | sed "s,@BOARDTYPE@,${type},g" >${board_upper}_EFI.its
+
+  # create .itb
   ./${RKBIN}/tools/mkimage -f ${board_upper}_EFI.its -E ${board_upper}_EFI.itb
-  dd if=../Build/PinePhoneProPkg/${UEFI_BUILD_TYPE}/FV/PINE_PHONE_PRO_UEFI.fd of=${board_upper}_EFI.itb bs=512 seek=$((1024 * 1024 / 512))
+
+  # write UEFI image to SD image
+  dd if=../Build/PinePhoneProPkg/${UEFI_BUILD_TYPE}/FV/PINE_PHONE_PRO_UEFI.fd of=${board_upper}_EFI.itb bs=512 seek=SD_IMG_OFFSET_UEFI
   rm -f bl31_0x*.bin ${board_upper}_EFI.its
 }
 
