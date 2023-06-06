@@ -1,0 +1,33 @@
+From a97e6da67d9fe5616d3dc5e082958d81815b2230 Mon Sep 17 00:00:00 2001
+From: Paul Fertser <fercerpav@gmail.com>
+Date: Fri, 2 Jun 2023 19:52:26 +0300
+Subject: [PATCH 1/2] Ignore false positive stringop-overflow warning
+
+With GCC 12.2.0 and -O3 compiling dramstage/boot_blockdev.c results in a
+few warnings like this:
+
+./include/dump_mem.h:27:56: error: writing 8 bytes into a region of size 0 [-Werror=stringop-overflow=]
+   27 |                 for_range(i, len * 3 + 4, 53) {line[i] = ' ';}
+      |                                                ~~~~~~~~^~~~~
+
+Since this is a false positive, ignore it for now.
+---
+ configure.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.py b/configure.py
+index 5a11b48..3ba7c6c 100755
+--- a/configure.py
++++ b/configure.py
+@@ -227,7 +227,7 @@ build.comment(f'C compiler: {cc}')
+ is_gcc = cc.endswith('gcc')
+ warnflags = os.getenv('WARNFLAGS')
+ if not warnflags:
+-    warnflags = "-Wall -Wextra -Werror=all -Wno-error=unused-parameter  -Wno-error=comment -Werror=incompatible-pointer-types -Wmissing-declarations"
++    warnflags = "-Wall -Wextra -Werror=all -Wno-error=unused-parameter  -Wno-error=comment -Wno-error=stringop-overflow -Werror=incompatible-pointer-types -Wmissing-declarations"
+     if is_gcc:
+         warnflags += '  -Werror=discarded-qualifiers'
+ cflags = os.getenv('CFLAGS')
+-- 
+2.39.2
+

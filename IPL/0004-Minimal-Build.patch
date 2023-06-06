@@ -1,0 +1,50 @@
+From ff114a1003c330c35f68e52bd2fa832c0949d656 Mon Sep 17 00:00:00 2001
+From: Joel Winarske <joel.winarske@gmail.com>
+Date: Sat, 3 Jun 2023 09:36:46 -0700
+Subject: [PATCH] Minimal Build
+
+-move lib/string to lib
+ allows building without parameters
+-default baud rate to 115200
+
+Signed-off-by: Joel Winarske <joel.winarske@gmail.com>
+---
+ configure.py | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/configure.py b/configure.py
+index 09d443c..221cc1e 100755
+--- a/configure.py
++++ b/configure.py
+@@ -65,7 +65,7 @@ for x in ('entry-ret2brom', 'entry-first'):
+     # must be shorter than 64 bytes
+     flags[x].append('-DCONFIG_GREETING=\"\\"levinboot/0.8\\r\\n\\"\"')
+     # base clock 1.5MHz
+-    flags[x].append('-DCONFIG_UART_CLOCK_DIV=1')
++    flags[x].append('-DCONFIG_UART_CLOCK_DIV=13')
+ 
+ parser = argparse.ArgumentParser(description='Configure the levinboot build.')
+ parser.add_argument(
+@@ -287,16 +287,16 @@ build('idbtool', 'buildcc', src('tools/idbtool.c'))
+ build('regtool', 'buildcc', [src('tools/regtool.c'), src('tools/regtool_rpn.c')])
+ 
+ # ===== C compile jobs =====
+-lib = {'lib/error', 'lib/uart', 'lib/uart16550a', 'lib/mmu', 'lib/gicv2', 'lib/sched'}
++lib = {'lib/error', 'lib/uart', 'lib/uart16550a', 'lib/mmu', 'lib/gicv2', 'lib/sched', 'lib/string'}
+ sramstage = {'sramstage/main', 'rk3399/pll', 'sramstage/pmu_cru', 'sramstage/misc_init'} | {'dram/' + x for x in ('training', 'memorymap', 'mirror', 'ddrinit')}
+ dramstage = {'dramstage/main', 'dramstage/transform_fdt', 'lib/rki2c', 'dramstage/commit', 'dramstage/entropy', 'dramstage/board_probe', 'dram/read_size'}
+-dramstage_embedder =  {'sramstage/embedded_dramstage', 'compression/lzcommon', 'compression/lz4', 'lib/string'}
++dramstage_embedder =  {'sramstage/embedded_dramstage', 'compression/lzcommon', 'compression/lz4'}
+ usb_loader = {'sramstage/usb_loader', 'lib/dwc3', 'sramstage/usb_loader-spi', 'lib/rkspi'}
+ memtest = {'sramstage/memtest', 'dram/read_size'}
+ 
+ if decompressors:
+     flags['dramstage/main'].append('-DCONFIG_DRAMSTAGE_DECOMPRESSION')
+-    dramstage |= {'compression/lzcommon', 'lib/string', 'dramstage/decompression'}
++    dramstage |= {'compression/lzcommon', 'dramstage/decompression'}
+ if 'lz4' in decompressors:
+     flags['dramstage/decompression'].append('-DHAVE_LZ4')
+     dramstage |= {'compression/lz4'}
+-- 
+2.40.1
+

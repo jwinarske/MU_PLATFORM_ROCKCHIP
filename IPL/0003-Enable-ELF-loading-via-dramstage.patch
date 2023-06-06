@@ -1,0 +1,224 @@
+From 4b36509c21312b3b534122ed9486b90eedbf16a7 Mon Sep 17 00:00:00 2001
+From: Joel Winarske <joel.winarske@gmail.com>
+Date: Sat, 3 Jun 2023 09:22:02 -0700
+Subject: [PATCH] Enable ELF loading via dramstage
+
+-GCC 12 linker fixes
+-standardize elf header member variable names
+-struct alignment
+
+Signed-off-by: Joel Winarske <joel.winarske@gmail.com>
+---
+ dramstage/commit.c | 99 +++++++++++++++++++++++-----------------------
+ dramstage/main.c   |  6 +++
+ rk3399/teststage.c |  6 +++
+ sramstage/main.c   |  6 +++
+ 4 files changed, 67 insertions(+), 50 deletions(-)
+
+diff --git a/dramstage/commit.c b/dramstage/commit.c
+index f5c79f3..6fe33bc 100644
+--- a/dramstage/commit.c
++++ b/dramstage/commit.c
+@@ -49,67 +49,60 @@ static bl_params_t bl_params = {
+ 	.head = &bl33_node,
+ };
+ 
+-static u64 elf_magic[3] = {
+-	0x00010102464c457f,
+-	0,
+-	0x0000000100b70002
++static u8 elf_magic[16] = {
++    0x7f, 0x45, 0x4C, 0x46, 0x02, 0x01, 0x01, 0x00,
++    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+ };
+ 
++/* 64 bit EHDR */
+ struct elf_header {
+-	u64 magic[3];
+-	u64 entry;
+-	u64 prog_h_off;
+-	u64 sec_h_off;
+-	u32 flags;
+-	u16 elf_h_size;
+-	u16 prog_h_entry_size;
+-	u16 num_prog_h;
+-	u16 sec_h_entry_size;
+-	u16 num_sec_h;
+-	u16 sec_h_str_idx;
++	u8 e_ident[16];
++	u16 e_type;
++	u16 e_machine;
++	u32 e_version;
++	u64 e_entry;
++	u64 e_phoff;
++	u64 e_shoff;
++	u32 e_flags;
++	u16 e_ehsize;
++	u16 e_phentsize;
++	u16 e_phnum;
++	u16 e_shentsize;
++	u16 e_shnum;
++	u16 e_shstrndx;
+ };
+ 
+ struct program_header {
+-	u32 type;
+-	u32 flags;
+-	u64 offset;
+-	u64 vaddr;
+-	u64 paddr;
+-	u64 file_size;
+-	u64 mem_size;
+-	u64 alignment;
++	u32 p_type;
++	u32 p_flags;
++	u64 p_offset;
++	u64 p_vaddr;
++	u64 p_paddr;
++	u64 p_filesz;
++	u64 p_memsz;
++	u64 p_align;
+ };
+ 
+ static void load_elf(const struct elf_header *header) {
+-	for_range(i, 0, 16) {
+-		const u32 *x = (u32*)((u64)header + 16*i);
+-		printf("%2x0: %08x %08x %08x %08x\n", i, x[0], x[1], x[2], x[3]);
+-	}
+ 	for_array(i, elf_magic) {
+-		assert_msg(header->magic[i] == elf_magic[i], "value 0x%016zx at offset %u != 0x%016zx", header->magic[i], 8*i, elf_magic[i]);
++		assert_msg(header->e_ident[i] == elf_magic[i], "value 0x%02x at offset %u != 0x%02x\n", header->e_ident[i], 8*i, elf_magic[i]);
+ 	}
+-	printf("Loading ELF: entry address %zx, %u program headers at %zx\n", header->entry, header->num_prog_h, header->prog_h_off);
+-	assert(header->prog_h_entry_size == 0x38);
+-	assert((header->prog_h_off & 7) == 0);
+-	for_range(i, 0, header->num_prog_h) {
+-		const struct program_header *ph = (const struct program_header*)((u64)header + header->prog_h_off + header->prog_h_entry_size * i);
+-		if (ph->type == 0x6474e551) {
++
++	assert(header->e_ehsize == 0x40);
++	for_range(i, 0, header->e_phnum) {
++		const struct program_header *ph = (const struct program_header*)(((u64)header + header->e_phoff) + (header->e_phentsize * i));
++		if (ph->p_type == 0x6474e551) {
+ 			puts("ignoring GNU_STACK segment");
+ 			continue;
+ 		}
+-		assert_msg(ph->type == 1, "found unexpected segment type %08x\n", ph->type);
+-		printf("LOAD %08zx…%08zx → %08zx\n", ph->offset, ph->offset + ph->file_size, ph->vaddr);
+-		assert(ph->vaddr == ph->paddr);
+-		assert(ph->flags == 7);
+-		assert(ph->offset % ph->alignment == 0);
+-		assert(ph->vaddr % ph->alignment == 0);
+-		u64 alignment = ph->alignment;
+-		assert(alignment % 16 == 0);
+-		const u64 words_copied = (ph->file_size + 7) >> 3;
+-		const u64 words_clear = ((ph->mem_size + 7) >> 3) - words_copied;
+-		const u64 *src = (const u64 *)((u64)header + ph->offset);
+-		const u64 *end = (const u64 *)ph->vaddr + words_copied;
+-		u64 *dest = (u64*)ph->vaddr;
++		assert_msg(ph->p_type == 1, "found unexpected segment type %08x\n", ph->p_type);
++		info("LOAD %08zx…%08zx → %08zx\n", ph->p_offset, ph->p_offset + ph->p_filesz, ph->p_vaddr);
++		assert(ph->p_vaddr == ph->p_paddr);
++		const u64 words_copied = (ph->p_filesz + 7) >> 3;
++		const u64 words_clear = ((ph->p_memsz + 7) >> 3) - words_copied;
++		const u64 *src = (const u64 *)((u64)header + ph->p_offset);
++		const u64 *end = (const u64 *)ph->p_vaddr + words_copied;
++		u64 *dest = (u64*)ph->p_vaddr;
+ 		debug("copying to %"PRIx64"–%"PRIx64"\n", dest, (u64)end);
+ 		while (dest < end) {*dest++ = *src++;}
+ 		end += words_clear;
+@@ -128,7 +121,7 @@ _Noreturn void commit(struct payload_desc *payload) {
+ 	info("trng: %"PRIx32" %"PRIx32"\n", regmap_crypto1->control, regmap_crypto1->interrupt_status);
+ 
+ 	pull_entropy(0);
+-
++#ifdef CONFIG_DRAMSTAGE_FDT_LOAD
+ 	struct fdt_addendum fdt_add = {
+ 		.fdt_address = fdt_out_addr,
+ 		.dram_start = DRAM_START + TZRAM_SIZE,
+@@ -144,16 +137,22 @@ _Noreturn void commit(struct payload_desc *payload) {
+ 		.initcpio_end = 0,
+ #endif
+ 	};
+-
++#endif
+ 	const struct elf_header *header = (const struct elf_header*)payload->elf_start;
+ 	load_elf(header);
++#ifdef CONFIG_DRAMSTAGE_FDT_LOAD
+ 	if (!transform_fdt((struct fdt_header *)fdt_out_addr, (u32*)payload->kernel_start, (const struct fdt_header *)payload->fdt_start, (const char *)payload->fdt_end, &fdt_add)) {
+ 		die("failed to transform FDT\n");
+ 	}
++#endif
+ 
+ 	bl33_ep.pc = (uintptr_t)payload->kernel_start;
+ 	bl33_ep.spsr = 9; /* jump into EL2 with SPSel = 1 */
++#ifdef CONFIG_DRAMSTAGE_FDT_LOAD
+ 	bl33_ep.args.arg0 = fdt_out_addr;
++#else
++	bl33_ep.args.arg0 = 0;
++#endif
+ 	bl33_ep.args.arg1 = 0;
+ 	bl33_ep.args.arg2 = 0;
+ 	bl33_ep.args.arg3 = 0;
+@@ -163,6 +162,6 @@ _Noreturn void commit(struct payload_desc *payload) {
+ 	regmap_cru[CRU_CLKGATE_CON+1] = SET_BITS16(8, 0);
+ 	info("[%"PRIuTS"] handing off to BL31\n", get_timestamp());
+ 	fflush(stdout);
+-	next_stage((u64)&bl_params, 0, 0, 0, header->entry, 0x1000);
++	next_stage((u64)&bl_params, 0, 0, 0, header->e_entry, 0x1000);
+ 	die("BL31 return");
+ }
+diff --git a/dramstage/main.c b/dramstage/main.c
+index 1d2db92..589fbb5 100644
+--- a/dramstage/main.c
++++ b/dramstage/main.c
+@@ -54,6 +54,12 @@ extern struct async_transfer spi1_async, sdmmc_async;
+ extern struct rkspi_xfer_state spi1_state;
+ extern struct dwmmc_state sdmmc_state;
+ 
++unsigned long int __getauxval (unsigned long int type);
++unsigned long int __getauxval (unsigned long int type UNUSED)
++{
++	return 0;
++}
++
+ void plat_handler_fiq() {
+ 	u64 grp0_intid;
+ 	__asm__ volatile("mrs %0, "ICC_IAR0_EL1";msr DAIFClr, #0xf" : "=r"(grp0_intid));
+diff --git a/rk3399/teststage.c b/rk3399/teststage.c
+index 9e77bb3..25c7d59 100644
+--- a/rk3399/teststage.c
++++ b/rk3399/teststage.c
+@@ -47,6 +47,12 @@ const struct mmu_multimap initial_mappings[] = {
+ 	{}
+ };
+ 
++unsigned long int __getauxval (unsigned long int type);
++unsigned long int __getauxval (unsigned long int type UNUSED)
++{
++	return 0;
++}
++
+ void plat_handler_fiq() {
+ 	die("unexpected FIQ");
+ }
+diff --git a/sramstage/main.c b/sramstage/main.c
+index bd05fbe..973f2d0 100644
+--- a/sramstage/main.c
++++ b/sramstage/main.c
+@@ -45,6 +45,12 @@ extern struct sdhci_state emmc_state;
+ #endif
+ extern struct dwmmc_state sdmmc_state;
+ 
++unsigned long int __getauxval (unsigned long int type);
++unsigned long int __getauxval (unsigned long int type UNUSED)
++{
++	return 0;
++}
++
+ void plat_handler_fiq() {
+ 	u64 grp0_intid;
+ 	__asm__ volatile("mrs %0, "ICC_IAR0_EL1";msr DAIFClr, #0xf" : "=r"(grp0_intid));
+-- 
+2.40.1
+

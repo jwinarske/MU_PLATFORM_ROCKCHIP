@@ -1,0 +1,5 @@
+ddrbin_param*.txt
+idblock.bin
+bl31_*.bin
+PINEPHONEPRO_EFI.*
+

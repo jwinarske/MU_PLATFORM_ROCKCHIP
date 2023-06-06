@@ -1,0 +1,44 @@
+From efc3a07be4392c44adc9e0802cda193ebbfd0c0a Mon Sep 17 00:00:00 2001
+From: Paul Fertser <fercerpav@gmail.com>
+Date: Fri, 2 Jun 2023 19:54:31 +0300
+Subject: [PATCH 2/2] Fix linking with GCC 12.2.0
+
+When building the project with GCC 12.2.0 the linking stage fails due to
+undefined references to functions like __aarch64_cas1_relax,
+__aarch64_ldset4_rel etc.
+
+Fix this by linking against libgcc.
+---
+ configure.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/configure.py b/configure.py
+index 3ba7c6c..09d443c 100755
+--- a/configure.py
++++ b/configure.py
+@@ -250,10 +250,13 @@ ldflags = os.getenv('LDFLAGS', '')
+ extraldflags = os.getenv('EXTRALDFLAGS', '-Wl,--gc-sections -Wl,-static')
+ ldflags += " " + extraldflags
+ 
++libs = os.getenv('LIBS', '-lgcc')
++
+ src = partial(path.join, srcdir)
+ 
+ build.glb_var('cflags', esc(cflags))
+ build.glb_var('ldflags', esc(ldflags))
++build.glb_var('libs', esc(libs))
+ build.glb_var('incbin_flags', '--rename-section .data=.rodata,alloc,load,readonly,data,contents')
+ 
+ 
+@@ -269,7 +272,7 @@ build.rule('cc', f'{cc} -MD -MF $out.d {cflags} $flags -c $in -o $out',
+     depfile="$out.d",
+     deps="gcc",
+ )
+-build.rule('ld', '{ld} $cflags $ldflags $flags $in -o $out'.format(
++build.rule('ld', '{ld} $cflags $ldflags $flags $in $libs -o $out'.format(
+     ld=cc,
+ ))
+ objcopy = os.getenv('OBJCOPY', 'objcopy')
+-- 
+2.39.2
+

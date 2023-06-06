@@ -4,3 +4,4 @@ __pycache__
 Platforms/*/__pycache__
 
 .idea
+.vscode

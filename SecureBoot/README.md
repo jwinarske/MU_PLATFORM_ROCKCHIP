@@ -6,7 +6,7 @@ Download and install toolchain and add the bin folder to path
 
 https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz?rev=9929cb6c0e8948f0ba1a621167fcd56d&hash=1259035C716B41C675DCA7D76913684B5AD8C239
 
-Build optee-os-tadevkit
+### Build optee-os-tadevkit
    
     pip3 install pycryptodome
 
@@ -20,25 +20,30 @@ Build optee-os-tadevkit
 
     make \
     CROSS_COMPILE=arm-none-linux-gnueabihf- \
-    PLATFORM=rockchip \
-    PLATFORM_FLAVOR=rk3399 \
+    PLATFORM=rockchip-rk3399 \
     CFG_ARM64_core=y \
     CFG_RPMB_FS=y \
-    CFG_RPMB_FS_DEV_ID=0 CFG_CORE_HEAP_SIZE=524288 CFG_RPMB_WRITE_KEY=y \
-    CFG_CORE_HEAP_SIZE=524288 CFG_CORE_DYN_SHM=y CFG_RPMB_TESTKEY=y \
-    CFG_REE_FS=n CFG_CORE_ARM64_PA_BITS=48  CFG_TEE_CORE_LOG_LEVEL=1 \
-    CFG_TEE_TA_LOG_LEVEL=1 CFG_SCTLR_ALIGNMENT_CHECK=n \
+    CFG_RPMB_FS_DEV_ID=0 \
+    CFG_CORE_HEAP_SIZE=524288 \
+    CFG_RPMB_WRITE_KEY=y \
+    CFG_CORE_HEAP_SIZE=524288 \
+    CFG_CORE_DYN_SHM=y \
+    CFG_RPMB_TESTKEY=y \
+    CFG_REE_FS=n \
+    CFG_CORE_ARM64_PA_BITS=48 \
+    CFG_TEE_CORE_LOG_LEVEL=1 \
+    CFG_TEE_TA_LOG_LEVEL=1 \
+    CFG_SCTLR_ALIGNMENT_CHECK=n \
     CFG_TEE_BENCHMARK=n \
     CFG_CORE_SEL1_SPMC=y \
     CFG_ULIBS_SHARED=y \
     NOWERROR=1 \
     OPTEE_CLIENT_EXPORT=`pwd`/out/usr \
     TEEC_EXPORT=`pwd`/out/usr \
-    V=1 \
     all -j
 
 
-Build Trusted App (TA) fTPM
+### Build Trusted App (TA) fTPM
 
    
     cd Silicon/MSFT/ms-tpm-20-ref
@@ -47,7 +52,7 @@ Build Trusted App (TA) fTPM
     cd Samples/ARM32-FirmwareTPM/optee_ta
     make \
     TA_CROSS_COMPILE=aarch64-linux-gnu- \
-    TA_CPU=cortex-a55 \
+    TA_CPU=cortex-a53 \
     CFG_FTPM_USE_WOLF=y \
     TA_DEV_KIT_DIR=`pwd`/../../../../../OP-TEE/optee_os/out/arm-plat-rockchip/export-ta_arm64 \
     OPTEE_CLIENT_EXPORT=`pwd`/../../../../../OP-TEE/optee_os/out/usr/ \
@@ -57,32 +62,60 @@ Build Trusted App (TA) fTPM
     -j
 
 
-Build OPTEE OS
+### Build OPTEE OS
 
-   make \
-   CROSS_COMPILE=arm-none-linux-gnueabihf- \
-   PLATFORM=rockchip \
-   PLATFORM_FLAVOR=rk3399 \
-   CFG_ARM64_core=y \
-   CFG_RPMB_FS=y \
-   CFG_RPMB_FS_DEV_ID=0 CFG_CORE_HEAP_SIZE=524288 CFG_RPMB_WRITE_KEY=y \
-   CFG_CORE_HEAP_SIZE=524288 CFG_CORE_DYN_SHM=y CFG_RPMB_TESTKEY=y \
-   CFG_REE_FS=n CFG_CORE_ARM64_PA_BITS=48  CFG_TEE_CORE_LOG_LEVEL=1 \
-   CFG_TEE_TA_LOG_LEVEL=1 CFG_SCTLR_ALIGNMENT_CHECK=n \
-   CFG_TA_DEBUG=1 \
-   CFG_TEE_BENCHMARK=n \
-   CFG_CORE_SEL1_SPMC=y \
-   CFG_ULIBS_SHARED=y \
-   NOWERROR=1 \
-   OPTEE_CLIENT_EXPORT=`pwd`/out/usr \
-   TEEC_EXPORT=`pwd`/out/usr \
-   NOWERROR=1 \
-   EARLY_TA_PATHS=`pwd`/../../MSFT/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
-   V=1 all -j
+    make \
+    CROSS_COMPILE=arm-none-linux-gnueabihf- \
+    PLATFORM=rockchip-rk3399 \
+    CFG_ARM64_core=y \
+    CFG_RPMB_FS=y \
+    CFG_RPMB_FS_DEV_ID=0 \
+    CFG_CORE_HEAP_SIZE=524288 \
+    CFG_RPMB_WRITE_KEY=y \
+    CFG_CORE_HEAP_SIZE=524288 \
+    CFG_CORE_DYN_SHM=y \
+    CFG_RPMB_TESTKEY=y \
+    CFG_REE_FS=n \
+    CFG_CORE_ARM64_PA_BITS=48 \
+    CFG_TEE_CORE_LOG_LEVEL=1 \
+    CFG_TEE_TA_LOG_LEVEL=1 \
+    CFG_SCTLR_ALIGNMENT_CHECK=n \
+    CFG_TEE_BENCHMARK=n \
+    CFG_CORE_SEL1_SPMC=y \
+    CFG_ULIBS_SHARED=y \
+    NOWERROR=1 \
+    OPTEE_CLIENT_EXPORT=`pwd`/out/usr \
+    TEEC_EXPORT=`pwd`/out/usr \
+    EARLY_TA_PATHS=`pwd`/../../MSFT/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
+    V=1 all -j
+
+Artifacts
+    ./out/arm-plat-rockchip/core/tee-pager_v2.bin
+    ./out/arm-plat-rockchip/core/tee-header_v2.bin
+    ./out/arm-plat-rockchip/core/tee-raw.bin
+    ./out/arm-plat-rockchip/core/tee.bin
+    ./out/arm-plat-rockchip/core/tee-pageable_v2.bin
+    ./out/arm-plat-rockchip/core/tee.elf
+    ./out/arm-plat-rockchip/export-ta_arm64/lib/87bb6ae8-4b1d-49fe-9986-2b966132c309.elf
+    ./out/arm-plat-rockchip/export-ta_arm64/lib/be807bbd-81e1-4dc4-bd99-3d363f240ece.elf
+    ./out/arm-plat-rockchip/export-ta_arm64/lib/4b3d937e-d57e-418b-8673-1c04f2420226.elf
+    ./out/arm-plat-rockchip/export-ta_arm64/lib/71855bba-6055-4293-a63f-b0963a737360.elf
 
 
-Build Trusted Firmware A with SPD=opteed
+include core/arch/arm/cpu/cortex-armv8-0.mk
+$(call force,CFG_TEE_CORE_NB_CORE,6)
+$(call force,CFG_ARM_GICV3,y)
+CFG_CRYPTO_WITH_CE ?= y
 
+CFG_TZDRAM_START ?= 0x30000000
+CFG_TZDRAM_SIZE  ?= 0x02000000
+CFG_SHMEM_START  ?= 0x32000000
+CFG_SHMEM_SIZE   ?= 0x00400000
+
+
+### Build Trusted Firmware A with SPD=opteed
+
+BL2 (levinboot) -> BL31 (TFA) -> BL32 (OP-TEE) -> BL33 (UEFI)
 
 Download AArch32 bare-metal target (arm-none-eabi) and add to path: 
 
@@ -90,26 +123,20 @@ https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
 
 https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz?rev=71e595a1f2b6457bab9242bc4a40db90&hash=37B0C59767BAE297AEB8967E7C54705BAE9A4B95
 
-
-Clean build bl31.elf, bl31.bin, fip.bin
-
     cd Silicon/Arm/TFA
     make \
-    CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 \
-    BL32=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.bin SPD=opteed \
-    CFG_TA_MEASURED_BOOT=1 \
+    CROSS_COMPILE=aarch64-linux-gnu- \
+    PLAT=rk3399 \
+    SPD=opteed \
+    BL32=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee-header_v2.bin \
+    BL32_EXTRA1=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee-pager_v2.bin \
+    BL32_EXTRA2=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee-pageable_v2.bin \
     CFG_TEE_TA_LOG_LEVEL=4 \
     CFG_TA_DEBUG=1 \
-    clean fip \
+    FEATURE_DETECTION=1 \
+    DEBUG=1 \
+    clean all fip \
     V=1
-
-Artifact
-
-    Silicon/Arm/TFA/build/rk3399/release/bl31.bin
-    Silicon/Arm/TFA/build/rk3399/release/fip.bin
-    Silicon/Arm/TFA/build/rk3399/release/bl31/bl31.elf
-
-    BL33=../Build/PinePhoneProPkg/DEBUG_GCC5/FV/PINE_PHONE_PRO_UEFI.fd
 
 Print fip.bin info
 
