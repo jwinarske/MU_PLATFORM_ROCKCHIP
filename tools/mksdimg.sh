@@ -76,8 +76,13 @@ test -r ${RKBIN}/${BL31} || (
   false
 )
 
+build_fit PinebookPro PinebookPro
+build_idblock
+make_sdcard PinebookPro
+
 build_fit PinePhonePro PinePhonePro
 build_idblock
 make_sdcard PinePhonePro
+
 
 set +x
