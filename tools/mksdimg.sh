@@ -48,7 +48,11 @@ build_fit() {
 
 make_sdcard() {
 
+  build_fit $1 $2
+  build_idblock
+
   board=$1
+  type=$2
   board_upper=$(echo $board | tr '[:lower:]' '[:upper:]')
 
   rm -f sdcard.img
@@ -76,13 +80,7 @@ test -r ${RKBIN}/${BL31} || (
   false
 )
 
-build_fit PinebookPro PinebookPro
-build_idblock
-make_sdcard PinebookPro
+make_sdcard PinebookPro PinebookPro
+make_sdcard PinePhonePro PinePhonePro
 
-build_fit PinePhonePro PinePhonePro
-build_idblock
-make_sdcard PinePhonePro
-
-
-set +x
+# set +x
