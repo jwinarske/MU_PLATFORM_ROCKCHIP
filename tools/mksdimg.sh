@@ -9,6 +9,21 @@ UEFI_BUILD_TYPE=DEBUG_GCC5
 
 RKBIN=../Silicon/Rockchip/rkbin
 
+build_uefi() (
+  echo " => Building UEFI.bin"
+  board=$1
+
+  pushd ../
+
+  export GCC5_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-
+  export PYTOOL_TEMPORARILY_IGNORE_NESTED_EDK_PACKAGES=true
+  stuart_setup -c Platforms/Pine64/${board}Pkg/PlatformBuild.py
+  stuart_update -c Platforms/Pine64/${board}Pkg/PlatformBuild.py
+  stuart_build -c Platforms/Pine64/${board}ProPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
+
+  popd
+)
+
 build_idblock() {
   echo " => Building idblock.bin"
   FLASHFILES="FlashData.bin FlashBoot.bin"
@@ -48,6 +63,7 @@ build_fit() {
 
 make_sdcard() {
 
+  build_uefi $1
   build_fit $1 $2
   build_idblock
 
