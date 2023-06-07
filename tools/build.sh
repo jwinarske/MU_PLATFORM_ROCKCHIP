@@ -67,6 +67,7 @@ compile_optee_example() {
   -j
   mkdir -p ${TA_STAGING_DIR}
   cp *.stripped.elf ${TA_STAGING_DIR}
+  rm -rf dyn_list
 }
 
 build_optee_examples() {
@@ -267,7 +268,7 @@ build_levinboot() {
 
   pushd ../IPL/levinboot
 
-  git reset --hard
+  git reset --hard 2fbeba71d46929d5e6980911d482e65ad6fb17f1
   git apply ../0005-Boot-BL31-BL32-BL33-from-RAM.patch
 
   rm -rf _build |true
