@@ -45,3 +45,6 @@
 [submodule "Silicon/MSFT/ms-tpm-20-ref"]
 	path = Silicon/MSFT/ms-tpm-20-ref
 	url = https://github.com/Microsoft/ms-tpm-20-ref.git
+[submodule "Silicon/OP-TEE/optee_examples"]
+	path = Silicon/OP-TEE/optee_examples
+	url = https://github.com/linaro-swg/optee_examples.git

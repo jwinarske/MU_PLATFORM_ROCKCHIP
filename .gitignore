@@ -6,6 +6,8 @@ Build
 __pycache__
 Platforms/*/__pycache__
 
+staging
+
 *.bin
 tools/*.bin
 tools/ddrbin_param*.txt

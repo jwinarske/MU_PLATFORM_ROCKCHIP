@@ -161,6 +161,12 @@ https://github.com/tpm2-software/tpm2-tools
 * Firmware Image Package (FIP)
 https://trustedfirmware-a.readthedocs.io/en/v2.6/design/firmware-design.html#firmware-image-package-fip
 
+* MU Example
+https://github.com/ms-iot/MU_PLATFORM_NXP
+
+* edk2 aarch64 platform examples
+https://github.com/tianocore/edk2-platforms
+
 ### Debug Boot Log
 
 ```

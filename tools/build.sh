@@ -2,15 +2,17 @@
 
 set -e
 
-BL31=../Silicon/Arm/TFA/build/rk3399/debug/bl31/bl31.elf
-BL32=../Silicon/OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf
+BL31=`pwd`/../Silicon/Arm/TFA/build/rk3399/debug/bl31/bl31.elf
+BL32=`pwd`/../Silicon/OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf
 
 TRUST_INI=RK3399TRUST.ini
 MINIALL_INI=RK3399MINIALL.ini
 
 UEFI_BUILD_TYPE=DEBUG_GCC5
 
-RKBIN=../Silicon/Rockchip/rkbin
+RKBIN=`pwd`/../Silicon/Rockchip/rkbin
+
+TA_STAGING_DIR=`pwd`/../staging/ta
 
 # SD Image Layout
 SD_BLOCK_SIZE=512
@@ -56,8 +58,62 @@ build_ta_sdk() {
   popd
 }
 
+compile_optee_example() {
+  rm -rf dyn_list | true 
+  make \
+  CROSS_COMPILE=aarch64-linux-gnu- \
+  PLATFORM=rockchip-rk3399 \
+  TA_DEV_KIT_DIR=`pwd`/../../../optee_os/out/arm-plat-rockchip/export-ta_arm64 \
+  -j
+  mkdir -p ${TA_STAGING_DIR}
+  cp *.stripped.elf ${TA_STAGING_DIR}
+}
+
+build_optee_examples() {
+  echo " => Building optee_examples (TA)"
+
+  pushd ../Silicon/OP-TEE/optee_examples
+  git reset --hard
+
+  pushd acipher/ta
+  compile_optee_example
+  popd
+
+  pushd aes/ta
+  compile_optee_example
+  popd
+
+  pushd hello_world/ta
+  compile_optee_example
+  popd
+
+  pushd secure_storage/ta
+  compile_optee_example
+  popd
+
+  pushd hotp/ta
+  compile_optee_example
+  popd
+
+  pushd plugins/ta
+  compile_optee_example
+  popd
+
+  pushd random/ta
+  compile_optee_example
+  popd
+
+  pushd secure_storage/ta
+  compile_optee_example
+  popd
+
+  find -iname *.stripped.elf
+
+  popd
+}
+
 build_ftpm() {
-  echo " => Building fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf"
+  echo " => Building fTPM (TA)"
 
   pushd ../Silicon/MSFT/ms-tpm-20-ref/
 
@@ -159,7 +215,7 @@ build_idblock() {
   rm -f idblock.bin rk3399_ddr_933MHz_*.bin rk3399_usbplug_*.bin ${FLASHFILES}
 
   # Default DDR image uses 1.5M baud. Patch it to use 115200 to match UEFI first.
-  cat $(pwd)/${RKBIN}/tools/ddrbin_param.txt |
+  cat ${RKBIN}/tools/ddrbin_param.txt |
     sed 's/^uart baudrate=.*$/uart baudrate=115200/' |
     sed 's/^dis_printf_training=.*$/dis_printf_training=1/' \
       >ddrbin_param.txt
@@ -168,8 +224,8 @@ build_idblock() {
   ${RKBIN}/tools/ddrbin_tool -g ./ddrbin_param_dump.txt ${RKBIN}/${DDR}
 
   # Create idblock.bin
-  (cd ${RKBIN} && ./tools/boot_merger RKBOOT/${MINIALL_INI})
-  ./${RKBIN}/tools/boot_merger unpack -i ${RKBIN}/rk3399_loader_*.bin -o .
+  (cd ${RKBIN} && tools/boot_merger RKBOOT/${MINIALL_INI})
+  ${RKBIN}/tools/boot_merger unpack -i ${RKBIN}/rk3399_loader_*.bin -o .
   cat ${FLASHFILES} >idblock.bin
 
   pushd ${RKBIN}
@@ -196,7 +252,7 @@ build_fit() {
   sed "s,@BOARDTYPE@,${type},g" uefi.its > ${board_upper}_EFI.its
 
   # create .itb
-  ./${RKBIN}/tools/mkimage -f ${board_upper}_EFI.its -E ${board_upper}_EFI.itb
+  ${RKBIN}/tools/mkimage -f ${board_upper}_EFI.its -E ${board_upper}_EFI.itb
 
   BL33=../Build/${board}Pkg/${UEFI_BUILD_TYPE}/FV/${board_upper}.fd
 
@@ -228,7 +284,7 @@ build_levinboot() {
   popd
 }
 
-make_sdcard() {
+make_sdimg() {
 
   build_uefi $1
   build_fit $1 $2 $3
@@ -255,8 +311,8 @@ make_sdcard() {
 }
 
 build_levinboot
-
 build_ta_sdk
+build_optee_examples
 build_ftpm
 build_optee_os
 build_atf
@@ -272,5 +328,5 @@ test -r ${BL31} || (
   false
 )
 
-make_sdcard PinebookPro rk3399-pinebook-pro
-make_sdcard PinePhonePro rk3399-pinephone-pro
+make_sdimg PinebookPro rk3399-pinebook-pro
+make_sdimg PinePhonePro rk3399-pinephone-pro

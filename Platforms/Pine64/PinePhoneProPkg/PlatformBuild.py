@@ -54,6 +54,7 @@ class CommonPlatform:
         "Common/MU_OEM_SAMPLE",
         "Silicon/Arm/MU_TIANO",
         "Silicon/Rockchip",
+        "Microsoft",
         "Features/DFCI",
         "Features/CONFIG",
         "Features/MM_SUPV"

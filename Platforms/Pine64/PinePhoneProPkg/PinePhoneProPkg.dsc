@@ -29,6 +29,9 @@
   SKUID_IDENTIFIER               = DEFAULT
   FLASH_DEFINITION               = Platforms/Pine64/$(PLATFORM_NAME)/$(PLATFORM_NAME).fdf
 
+  DEFINE CONFIG_OPTEE            = FALSE
+  DEFINE CONFIG_MEASURED_BOOT    = FALSE
+
   DEFINE NETWORK_ENABLE          = FALSE
   DEFINE NETWORK_IP6_ENABLE      = TRUE
   DEFINE NETWORK_ISCSI_ENABLE    = TRUE
@@ -81,6 +84,10 @@
   FileHandleLib|MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf
   SortLib|MdeModulePkg/Library/UefiSortLib/UefiSortLib.inf
 
+  ShellCommandLib|ShellPkg/Library/UefiShellCommandLib/UefiShellCommandLib.inf
+  ShellCEntryLib|ShellPkg/Library/UefiShellCEntryLib/UefiShellCEntryLib.inf
+  HandleParsingLib|ShellPkg/Library/UefiHandleParsingLib/UefiHandleParsingLib.inf
+
   # UiApp dependencies
   ReportStatusCodeLib|MdeModulePkg/Library/DxeReportStatusCodeLib/DxeReportStatusCodeLib.inf
   FileExplorerLib|MdeModulePkg/Library/FileExplorerLib/FileExplorerLib.inf
@@ -99,8 +106,6 @@
   SerialPortLib|Silicon/Rockchip/Rk3399Pkg/Library/SerialPortLib/SerialPortLib.inf
   RealTimeClockLib|Silicon/Rockchip/Rk3399Pkg/Library/Rk808RealTimeClockLib/Rk808RealTimeClockLib.inf
   
-  NetLib|NetworkPkg/Library/DxeNetLib/DxeNetLib.inf
-
   PcdLib|MdePkg/Library/DxePcdLib/DxePcdLib.inf
 
   PeCoffLib|MdePkg/Library/BasePeCoffLib/BasePeCoffLib.inf
@@ -400,7 +405,13 @@
   MdeModulePkg/Universal/SerialDxe/SerialDxe.inf
 
   MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
-  #TODO MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
+  # MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf {
+    #<LibraryClasses>
+      #BaseCryptLib|CryptoPkg/Library/BaseCryptLib/RuntimeCryptLib.inf
+      #TlsLib|CryptoPkg/Library/TlsLib/TlsLib.inf
+      #IntrinsicLib|CryptoPkg/Library/IntrinsicLib/IntrinsicLib.inf
+      #OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLib.inf # Contains openSSL library used by BaseCryptoLib
+  #}
 
   ArmPkg/Drivers/ArmGic/ArmGicDxe.inf
   ArmPkg/Drivers/TimerDxe/TimerDxe.inf
@@ -462,12 +473,19 @@
   #
   # OptionRomPkg/Bus/Usb/UsbNetworking/Ax88772b/Ax88772b.inf
 
+
   #
   # FAT filesystem + GPT/MBR partitioning
   #
   FatPkg/EnhancedFatDxe/Fat.inf
   MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
   MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
+  Microsoft/MsPkg/Drivers/SdMmcDxe/SdMmcDxe.inf
+
+  # FV Filesystem
+  MdeModulePkg/Universal/FvSimpleFileSystemDxe/FvSimpleFileSystemDxe.inf
+
+  # Unicode support (required)
   MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
 
   #
