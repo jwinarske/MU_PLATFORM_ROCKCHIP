@@ -307,6 +307,7 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase|0x30020000
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize|0x00010000
 
+
   #
   # Minimum system memory supported (1GB). Actual amount is detected
   # in Rk3399Mem.c (Rk3399InitMemorySize).

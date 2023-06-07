@@ -1,7 +1,15 @@
+.idea
+.vscode
+
 Conf
 Build
 __pycache__
 Platforms/*/__pycache__
 
-.idea
-.vscode
+*.bin
+tools/*.bin
+tools/ddrbin_param*.txt
+tools/idblock.bin
+tools/PINEPHONEPRO_EFI.*
+tools/PINEBOOKPRO_EFI.*
+

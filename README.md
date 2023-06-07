@@ -30,9 +30,28 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-t
     stuart_update -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py
     stuart_build -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
 
-levinboot for loading via USB:
+load images direct to RAM using USB:
 
-    sudo tools/usbtool --call sramstage-usb.bin --bulk --load 4200000 path/to/trusted-firmware-a/build/rk3399/release/bl31/bl31.elf --load 4000000 dramstage.bin --start 4000000 4102000
+    tools/extractelf.py Silicon/Arm/TFA/build/rk3399/debug/bl31/bl31.elf tfa
+    tools/extractelf.py Silicon/OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf optee
+
+    sudo IPL/levinboot/_build/tools/usbtool --call IPL/levinboot/_build/sramstage-usb.bin \
+    --bulk \
+    --load 40000 tfa_0x00040000.bin \
+    --load ff3b0000 tfa_0xff3b0000.bin \
+    --load ff8c0000 tfa_0xff8c0000.bin \
+    --load ff8c1000 tfa_0xff8c1000.bin \
+    --load ff8c2000 tfa_0xff8c2000.bin \
+    --load 30000000 optee_0x30000000.bin \
+    --load 30200000 optee_0x30200000.bin \
+    --load A00000 Build/PinePhoneProPkg/DEBUG_GCC5/FV/PINEPHONEPRO.fd \
+    --load 00B00000 dtb/rk3399-pinephone-pro.dtb \
+    --load 04000000 IPL/levinboot/_build/dramstage.bin \
+    --start 04000000 4102000
+
+* We ignore bin files that have size of zero.  e.g. tfa_0xff8c2000.bin
+
+The above step requires a matching image structure for bl32 and bl33 passed.  This happens for the SD card image.
 
 ### Build R5C
 
@@ -40,6 +59,10 @@ levinboot for loading via USB:
     stuart_setup -c Platforms/FriendlyElec/R5CPkg/PlatformBuild.py
     stuart_update -c Platforms/FriendlyElec/R5CPkg/PlatformBuild.py
     stuart_build -c Platforms/FriendlyElec/R5CPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
+
+### Full Stack Build
+
+See tools/mksdimg.sh
 
 ### JTAG Setup
 

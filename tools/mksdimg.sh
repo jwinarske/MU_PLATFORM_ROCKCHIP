@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# set -x
+set -e
 
 BL31=../Silicon/Arm/TFA/build/rk3399/debug/bl31/bl31.elf
 BL32=../Silicon/OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf
@@ -20,13 +20,14 @@ SD_IMG_OFFSET_UEFI=$((1024 * 1024 / $SD_BLOCK_SIZE)) # 0x100000
 
 
 build_ta_sdk() {
+  echo " => Building Trusted App SDK"
 
   pushd ../Silicon/OP-TEE/optee_os
   git reset --hard
   git apply ../../../SecureBoot/patches/optee_os/0001-allow-setting-sysroot-for-libgcc-lookup.patch
-  git apply ../../../SecureBoot/patches/optee_os/0002-optee-enable-clang-support.patch
+  # git apply ../../../SecureBoot/patches/optee_os/0002-optee-enable-clang-support.patch
   git apply ../../../SecureBoot/patches/optee_os/0003-core-link-add-no-warn-rwx-segments.patch
-  git apply ../../../SecureBoot/patches/optee_os/0004-core-Define-section-attributes-for-clang.patch
+  #git apply ../../../SecureBoot/patches/optee_os/0004-core-Define-section-attributes-for-clang.patch
 
   export PATH=$PATH:/home/joel/Downloads/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin
 
@@ -42,11 +43,10 @@ build_ta_sdk() {
   CFG_RPMB_TESTKEY=y \
   CFG_REE_FS=n \
   CFG_CORE_ARM64_PA_BITS=48 \
-  CFG_TEE_CORE_LOG_LEVEL=1 \
-  CFG_TEE_TA_LOG_LEVEL=1 \
+  CFG_TEE_CORE_LOG_LEVEL=4 \
+  CFG_TEE_TA_LOG_LEVEL=4 \
   CFG_SCTLR_ALIGNMENT_CHECK=n \
   CFG_TEE_BENCHMARK=n \
-  CFG_CORE_SEL1_SPMC=y \
   CFG_ULIBS_SHARED=y \
   NOWERROR=1 \
   OPTEE_CLIENT_EXPORT=`pwd`/out/usr \
@@ -56,31 +56,34 @@ build_ta_sdk() {
   popd
 }
 
-
 build_ftpm() {
+  echo " => Building fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf"
 
   pushd ../Silicon/MSFT/ms-tpm-20-ref/
+
   git submodule update --init --recursive
   git reset --hard
   git apply ../../../SecureBoot/patches/fTPM/0001-add-enum-to-ta-flags.patch
-  
-  cd Samples/ARM32-FirmwareTPM/optee_ta
+
+  pushd Samples/ARM32-FirmwareTPM/optee_ta
   
   make \
   TA_CROSS_COMPILE=aarch64-linux-gnu- \
   TA_CPU=cortex-a53 \
   CFG_FTPM_USE_WOLF=y \
+  CFG_ARM64_ta_arm64=y \
   TA_DEV_KIT_DIR=`pwd`/../../../../../OP-TEE/optee_os/out/arm-plat-rockchip/export-ta_arm64 \
   OPTEE_CLIENT_EXPORT=`pwd`/../../../../../OP-TEE/optee_os/out/usr/ \
   TEEC_EXPORT=`pwd`/../../../../../OP-TEE/optee_os/out/usr/ \
   -I`pwd`/../../../../../OP-TEE/optee_os \
-  CFG_ARM64_ta_arm64=y \
   -j
 
+  popd
   popd
 }
 
 build_optee_os() {
+  echo " => Building tee-pager_v2.bin"
 
   pushd ../Silicon/OP-TEE/optee_os
 
@@ -88,25 +91,25 @@ build_optee_os() {
   CROSS_COMPILE=arm-none-linux-gnueabihf- \
   PLATFORM=rockchip-rk3399 \
   CFG_ARM64_core=y \
+  CFG_CORE_HEAP_SIZE=524288 \
+  CFG_CORE_DYN_SHM=y \
+  CFG_CORE_ARM64_PA_BITS=48 \
+  CFG_SCTLR_ALIGNMENT_CHECK=n \
   CFG_RPMB_FS=y \
   CFG_RPMB_FS_DEV_ID=0 \
-  CFG_CORE_HEAP_SIZE=524288 \
   CFG_RPMB_WRITE_KEY=y \
-  CFG_CORE_DYN_SHM=y \
   CFG_RPMB_TESTKEY=y \
   CFG_REE_FS=n \
-  CFG_CORE_ARM64_PA_BITS=48 \
-  CFG_TEE_CORE_LOG_LEVEL=1 \
-  CFG_TEE_TA_LOG_LEVEL=1 \
-  CFG_SCTLR_ALIGNMENT_CHECK=n \
+  CFG_TEE_CORE_LOG_LEVEL=4 \
+  CFG_TEE_TA_LOG_LEVEL=4 \
   CFG_TEE_BENCHMARK=n \
-  CFG_CORE_SEL1_SPMC=y \
   CFG_ULIBS_SHARED=y \
   NOWERROR=1 \
   OPTEE_CLIENT_EXPORT=`pwd`/out/usr \
   TEEC_EXPORT=`pwd`/out/usr \
-  EARLY_TA_PATHS=`pwd`/../../MSFT/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
-  V=1 all mem_usage -j
+  EARLY_TA_PATHS="`pwd`/../../MSFT/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
+                  `pwd`/out/arm-plat-rockchip/ta/avb/023f8f1a-292a-432b-8fc4-de8471358067.stripped.elf" \
+  all mem_usage V=1 -j
 
   readelf -h ./out/arm-plat-rockchip/core/tee.elf
 
@@ -114,19 +117,21 @@ build_optee_os() {
 }
 
 build_atf() {
+  echo " => Building bl31.elf"
+
   pushd ../Silicon/Arm/TFA
 
   make \
   CROSS_COMPILE=aarch64-linux-gnu- \
   PLAT=rk3399 \
   SPD=opteed \
-  CFG_TEE_TA_LOG_LEVEL=4 \
-  CFG_TA_DEBUG=1 \
-  DEBUG=1 \
   BL32=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee-header_v2.bin \
   BL32_EXTRA1=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee-pager_v2.bin \
   BL32_EXTRA2=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee-pageable_v2.bin \
-  V=1 bl31 -j
+  CFG_TEE_TA_LOG_LEVEL=4 \
+  CFG_TA_DEBUG=1 \
+  DEBUG=1 \
+  bl31 V=1 -j
 
   readelf -h ./build/rk3399/debug/bl31/bl31.elf
 
@@ -134,7 +139,7 @@ build_atf() {
 }
 
 build_uefi() {
-  echo " => Building UEFI.bin"
+  echo " => Building UEFI .fd"
   board=$1
 
   pushd ../
@@ -182,10 +187,10 @@ build_fit() {
 
   board_upper=$(echo $board | tr '[:lower:]' '[:upper:]')
 
-  # extract regions to relocate from elf, save each as .bin
-  ./extractbl31.py ${BL31}
-  ./extractbl31.py ${BL32}
-  ls -la bl31*.bin
+  # extract PT_LOAD regions to individual files
+  ./extractelf.py ${BL31} atf
+  ./extractelf.py ${BL32} optee
+  ls -la *_0x*.bin
 
   # create board .its from template
   sed "s,@BOARDTYPE@,${type},g" uefi.its > ${board_upper}_EFI.its
@@ -197,12 +202,34 @@ build_fit() {
 
   # write UEFI image to SD image
   dd if=${BL33} of=${board_upper}_EFI.itb bs=512 seek=$SD_IMG_OFFSET_UEFI
-  rm -f bl31_0x*.bin ${board_upper}_EFI.its
+  rm -f *_0x*.bin ${board_upper}_EFI.its
+}
+
+build_levinboot() {
+
+  pushd ../IPL/levinboot
+
+  git reset --hard
+  git apply ../0005-Boot-BL31-BL32-BL33-from-RAM.patch
+
+  rm -rf _build |true
+  mkdir _build && pushd _build
+
+  CROSS=aarch64-linux-gnu
+  CC=$CROSS-gcc OBJCOPY=$CROSS-objcopy LD=$CROSS-ld ../configure.py --with-tf-a-headers ../../../Silicon/Arm/TFA/include/export --boards pbp
+  ninja
+
+  mkdir tools && pushd tools
+  CC=gcc ../../tools/configure
+  ninja
+  popd
+
+  popd
+  popd
 }
 
 make_sdcard() {
 
-  build_atf
   build_uefi $1
   build_fit $1 $2 $3
   build_idblock
@@ -227,6 +254,8 @@ make_sdcard() {
   fdisk -l ${board_upper}_EFI.img
 }
 
+build_levinboot
+
 build_ta_sdk
 build_ftpm
 build_optee_os
@@ -245,5 +274,3 @@ test -r ${BL31} || (
 
 make_sdcard PinebookPro rk3399-pinebook-pro
 make_sdcard PinePhonePro rk3399-pinephone-pro
-
-# set +x

@@ -10,10 +10,11 @@ BL2
     export LD=$CROSS-ld
 
     cd IPL/levinboot
-    git apply ../0001-Ignore-false-positive-stringop-overflow-warning.patch
-    git apply ../0002-Fix-linking-with-GCC-12.2.0.patch
-    git apply ../0003-Enable-ELF-loading-via-dramstage.patch
-    git apply ../0004-Minimal-Build.patch
+    # git apply ../0001-Ignore-false-positive-stringop-overflow-warning.patch
+    # git apply ../0002-Fix-linking-with-GCC-12.2.0.patch
+    # git apply ../0003-Enable-ELF-loading-via-dramstage.patch
+    # git apply ../0004-Minimal-Build.patch
+    git apply ../0005-Boot-BL31-BL32-BL33-from-RAM.patch
 
     mkdir _build && cd _build
     ../configure.py --with-tf-a-headers ../../../Silicon/Arm/TFA/include/export --boards pbp

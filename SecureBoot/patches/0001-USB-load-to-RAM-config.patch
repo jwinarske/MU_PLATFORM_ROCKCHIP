@@ -1,0 +1,206 @@
+From ab55eade39ea3e6ab1149764804a5622c4fb8b2c Mon Sep 17 00:00:00 2001
+From: Joel Winarske <joel.winarske@gmail.com>
+Date: Wed, 7 Jun 2023 11:01:37 -0700
+Subject: [PATCH] USB load to RAM config
+
+Signed-off-by: Joel Winarske <joel.winarske@gmail.com>
+---
+ plat/rockchip/common/bl31_plat_setup.c        | 82 ++++++++++++++++++-
+ .../rk3288/include/shared/bl32_param.h        |  8 +-
+ plat/rockchip/rk3399/include/platform_def.h   |  9 ++
+ .../rk3399/include/shared/bl32_param.h        | 26 ++++++
+ 4 files changed, 117 insertions(+), 8 deletions(-)
+ create mode 100644 plat/rockchip/rk3399/include/shared/bl32_param.h
+
+diff --git a/plat/rockchip/common/bl31_plat_setup.c b/plat/rockchip/common/bl31_plat_setup.c
+index 59db3d85c..c9c9085d4 100644
+--- a/plat/rockchip/common/bl31_plat_setup.c
++++ b/plat/rockchip/common/bl31_plat_setup.c
+@@ -18,8 +18,79 @@
+ #include <plat_private.h>
+ #include <plat/common/platform.h>
+ 
+-static entry_point_info_t bl32_ep_info;
+-static entry_point_info_t bl33_ep_info;
++static bl_mem_params_node_t bl_mem_params_descs[] = {
++	/* Fill BL32 related information */
++	{
++		.image_id = BL32_IMAGE_ID,
++
++		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
++			VERSION_2, entry_point_info_t, SECURE | EXECUTABLE),
++		.ep_info.pc = 0x30000000,
++
++		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
++			VERSION_2, image_info_t, 0),
++		.image_info.image_base = BL32_BASE,
++		.image_info.image_max_size = BL32_LIMIT - BL32_BASE,
++
++		.next_handoff_image_id = BL33_IMAGE_ID,
++	},
++
++	/*
++	 * Fill BL32 external 1 related information.
++	 * A typical use for extra1 image is with OP-TEE where it is the pager
++	 * image.
++	 */
++	{
++		.image_id = BL32_EXTRA1_IMAGE_ID,
++
++		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
++			VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
++
++		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
++			VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
++		.image_info.image_base = BL32_BASE,
++		.image_info.image_max_size = BL32_LIMIT - BL32_BASE,
++
++		.next_handoff_image_id = INVALID_IMAGE_ID,
++	},
++
++	/*
++	 * Fill BL32 external 2 related information.
++	 * A typical use for extra2 image is with OP-TEE where it is the paged
++	 * image.
++	 */
++	{
++		.image_id = BL32_EXTRA2_IMAGE_ID,
++
++		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
++			VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
++
++		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
++			VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
++
++		.image_info.image_base = RK3399_OPTEE_PAGEABLE_LOAD_BASE,
++		.image_info.image_max_size = RK3399_OPTEE_PAGEABLE_LOAD_SIZE,
++
++		.next_handoff_image_id = INVALID_IMAGE_ID,
++	},
++
++	/* Fill BL33 related information */
++	{
++		.image_id = BL33_IMAGE_ID,
++		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
++			VERSION_2, entry_point_info_t, NON_SECURE | EXECUTABLE),
++
++		.ep_info.pc = PRELOADED_BL33_BASE,
++		.ep_info.spsr = SPSR_64(MODE_EL1, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
++
++		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
++			VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
++
++		.next_handoff_image_id = INVALID_IMAGE_ID,
++	}
++};
++
++REGISTER_BL_IMAGE_DESCS(bl_mem_params_descs)
+ 
+ /*******************************************************************************
+  * Return a pointer to the 'entry_point_info' structure of the next image for
+@@ -31,7 +102,10 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
+ {
+ 	entry_point_info_t *next_image_info;
+ 
+-	next_image_info = (type == NON_SECURE) ? &bl33_ep_info : &bl32_ep_info;
++	next_image_info = (type == NON_SECURE) ?
++		&bl_mem_params_descs[3].ep_info :
++		&bl_mem_params_descs[0].ep_info;
++
+ 	assert(next_image_info->h.type == PARAM_EP);
+ 
+ 	/* None of the images on this platform can have 0x0 as the entrypoint */
+@@ -68,7 +142,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+ 
+ 	VERBOSE("bl31_setup\n");
+ 
+-	bl31_params_parse_helper(arg0, &bl32_ep_info, &bl33_ep_info);
++	//TODO bl31_params_parse_helper(arg0, &bl32_ep_info, &bl33_ep_info);
+ }
+ 
+ /*******************************************************************************
+diff --git a/plat/rockchip/rk3288/include/shared/bl32_param.h b/plat/rockchip/rk3288/include/shared/bl32_param.h
+index ffdb2f38c..036e3e98c 100644
+--- a/plat/rockchip/rk3288/include/shared/bl32_param.h
++++ b/plat/rockchip/rk3288/include/shared/bl32_param.h
+@@ -11,8 +11,8 @@
+  * Platform memory map related constants
+  ******************************************************************************/
+ /* TF text, ro, rw, Size: 1MB */
+-#define TZRAM_BASE		(0x0)
+-#define TZRAM_SIZE		(0x100000)
++#define TEERAM_BASE		(0x30000000)
++#define TEERAM_SIZE		(0x500000)
+ 
+ /*******************************************************************************
+  * BL32 specific defines.
+@@ -20,7 +20,7 @@
+ /*
+  * Put BL32 at the top of the Trusted RAM
+  */
+-#define BL32_BASE			(TZRAM_BASE + 0x40000)
+-#define BL32_LIMIT			(TZRAM_BASE + TZRAM_SIZE)
++#define BL32_BASE			(TEERAM_BASE)
++#define BL32_LIMIT			(TEERAM_BASE + TEERAM_SIZE)
+ 
+ #endif /* BL32_PARAM_H */
+diff --git a/plat/rockchip/rk3399/include/platform_def.h b/plat/rockchip/rk3399/include/platform_def.h
+index 78269b632..682beb873 100644
+--- a/plat/rockchip/rk3399/include/platform_def.h
++++ b/plat/rockchip/rk3399/include/platform_def.h
+@@ -12,6 +12,7 @@
+ #include <plat/common/common_def.h>
+ 
+ #include <bl31_param.h>
++#include <bl32_param.h>
+ #include <rk3399_def.h>
+ 
+ /*******************************************************************************
+@@ -101,4 +102,12 @@
+ #define PSRAM_DO_DDR_RESUME	1
+ #define PSRAM_CHECK_WAKEUP_CPU	0
+ 
++#ifdef SPD_opteed
++/* Load pageable part of OP-TEE at end of allocated DRAM space for BL32 */
++#define RK3399_OPTEE_PAGEABLE_LOAD_BASE	(BL32_LIMIT - RK3399_OPTEE_PAGEABLE_LOAD_SIZE)
++#define RK3399_OPTEE_PAGEABLE_LOAD_SIZE	0x400000 /* 4MB */
++#endif
++
++#define PRELOADED_BL33_BASE 0x00A00000
++
+ #endif /* PLATFORM_DEF_H */
+diff --git a/plat/rockchip/rk3399/include/shared/bl32_param.h b/plat/rockchip/rk3399/include/shared/bl32_param.h
+new file mode 100644
+index 000000000..d1c9069d0
+--- /dev/null
++++ b/plat/rockchip/rk3399/include/shared/bl32_param.h
+@@ -0,0 +1,26 @@
++/*
++ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
++ *
++ * SPDX-License-Identifier: BSD-3-Clause
++ */
++
++#ifndef BL32_PARAM_H
++#define BL32_PARAM_H
++
++/*******************************************************************************
++ * Platform memory map related constants
++ ******************************************************************************/
++/* TF text, ro, rw, Size: 1MB */
++#define TZDRAM_BASE		(0x30000000)
++#define TZDRAM_SIZE		(0x02000000)
++
++/*******************************************************************************
++ * BL32 specific defines.
++ ******************************************************************************/
++/*
++ * Put BL32 at the top of the Trusted RAM
++ */
++#define BL32_BASE			(TZDRAM_BASE + 0x40000)
++#define BL32_LIMIT			(TZDRAM_BASE + TZRAM_SIZE)
++
++#endif /* BL32_PARAM_H */
+-- 
+2.40.1
+

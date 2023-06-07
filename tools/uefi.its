@@ -11,10 +11,9 @@
 	#address-cells = <1>;
 
 	images {
-
 		atf-1 {
 			description = "ARM Trusted Firmware";
-			data = /incbin/("./bl31_0x00040000.bin");
+			data = /incbin/("./atf_0x00040000.bin");
 			type = "firmware";
 			arch = "arm64";
 			os = "arm-trusted-firmware";
@@ -24,10 +23,9 @@
 				algo = "sha256";
 			};
 		};
-
 		atf-2 {
 			description = "ARM Trusted Firmware";
-			data = /incbin/("./bl31_0xff3b0000.bin");
+			data = /incbin/("./atf_0xff3b0000.bin");
 			type = "firmware";
 			arch = "arm64";
 			os = "arm-trusted-firmware";
@@ -37,10 +35,9 @@
 					algo = "sha256";
 			};
 		};
-
 		atf-3 {
 			description = "ARM Trusted Firmware";
-			data = /incbin/("./bl31_0xff8c0000.bin");
+			data = /incbin/("./atf_0xff8c0000.bin");
 			type = "firmware";
 			arch = "arm64";
 			os = "arm-trusted-firmware";
@@ -50,10 +47,9 @@
 					algo = "sha256";
 			};
 		};
-
 		atf-4 {
 			description = "ARM Trusted Firmware";
-			data = /incbin/("./bl31_0xff8c1000.bin");
+			data = /incbin/("./atf_0xff8c1000.bin");
 			type = "firmware";
 			arch = "arm64";
 			os = "arm-trusted-firmware";
@@ -63,23 +59,9 @@
 				algo = "sha256";
 			};
 		};
-
-		atf-5 {
-			description = "ARM Trusted Firmware";
-			data = /incbin/("./bl31_0xff8c2000.bin");
-			type = "firmware";
-			arch = "arm64";
-			os = "arm-trusted-firmware";
-			compression = "none";
-			load = <0xff8c2000>;
-			hash {
-				algo = "sha256";
-			};
-		};
-
 		optee-1 {
 			description = "OP-TEE";
-			data = /incbin/("./bl31_0x30000000.bin");
+			data = /incbin/("./optee_0x30000000.bin");
 			type = "firmware";
 			arch = "arm64";
 			os = "op-tee";
@@ -89,20 +71,18 @@
 				algo = "sha256";
 			};
 		};
-
 		optee-2 {
 			description = "OP-TEE";
-			data = /incbin/("./bl31_0x30200000.bin");
+			data = /incbin/("./optee_0x30200000.bin");
 			type = "firmware";
 			arch = "arm64";
 			os = "op-tee";
 			compression = "none";
-			load = <0x30000000>;
+			load = <0x30200000>;
 			hash {
 				algo = "sha256";
 			};
 		};
-
 		uefi {
 			description = "UEFI";
 			data-position = <0x00100000>;
@@ -111,16 +91,15 @@
 			arch = "arm64";
 			os = "UEFI";
 			compression = "none";
-			load = <0x00200000>;
+			load = <0x00A00000>;
 		};
-
 		fdt {
 			description = "@BOARDTYPE@ dtb";
 			data = /incbin/("../dtb/@BOARDTYPE@.dtb");
 			type = "flat_dt";
 			arch = "arm64";
 			compression = "none";
-			load = <0x00b00000>;
+			load = <0x00B00000>;
 			hash {
 				algo = "sha256";
 			};
@@ -132,13 +111,13 @@
 		conf {
 			description = "@BOARDTYPE@";
 			rollback-index = <0x0>;
-			loadables = "atf-1", "atf-2", "atf-3", "atf-4", "atf-5", "optee-1", "optee-2", "uefi";
+			loadables = "atf-1", "atf-2", "atf-3", "atf-4", "optee-1", "optee-2", "uefi";
 			fdt = "fdt";
 			signature {
 				algo = "sha256,rsa2048";
 				padding = "pss";
 				key-name-hint = "dev";
-				sign-images = "fdt", "firmware", "loadables";
+				sign-images = "fdt", "loadables";
 			};
 		};
 	};

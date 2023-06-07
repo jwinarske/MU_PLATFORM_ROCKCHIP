@@ -33,10 +33,60 @@
   gRk3399PkgTokenSpaceGuid   = { 0xa0a4631b, 0xaba4, 0x4e73, { 0x90, 0x48, 0xae, 0x63, 0x84, 0xd6, 0x51, 0xd4 } }
 
 [PcdsFixedAtBuild.common]
-  # RK3399 UART
-  gRk3399PkgTokenSpaceGuid.UartClkInHz|24000000|UINT32|0x0000001F
-  gRk3399PkgTokenSpaceGuid.UartInteger|0|UINT32|0x00000020
-  gRk3399PkgTokenSpaceGuid.UartFractional|0|UINT32|0x0000002D
-  
+  gRk3399PkgTokenSpaceGuid.PcdFdtBaseAddress|0x00B00000|UINT64|0x00000001
+  gRk3399PkgTokenSpaceGuid.PcdFdtSize|0x10000|UINT32|0x00000002
+  gRk3399PkgTokenSpaceGuid.PcdTfaBaseAddress|0x00000000|UINT64|0x00000003
+  gRk3399PkgTokenSpaceGuid.PcdTfaSize|0x00A00000|UINT32|0x00000004
+  gRk3399PkgTokenSpaceGuid.PcdOpteeBaseAddress|0x08400000|UINT64|0x00000005
+  gRk3399PkgTokenSpaceGuid.PcdOpteeSize|0x01000000|UINT32|0x00000006
+  gRk3399PkgTokenSpaceGuid.PcdReservedBaseAddress|0xF0000000|UINT64|0x00000007
+  gRk3399PkgTokenSpaceGuid.PcdReservedSize|0x10000000|UINT64|0x00000008
+  gRk3399PkgTokenSpaceGuid.PcdCpuSpeed|0x0|UINT32|0x00000009
+  gRk3399PkgTokenSpaceGuid.PcdPlatformName|"Unknown"|VOID*|0x00000010
+  gRk3399PkgTokenSpaceGuid.PcdCpuName|"Unknown"|VOID*|0x00000011
+  gRk3399PkgTokenSpaceGuid.PcdPlatformVendorName|"Unknown"|VOID*|0x00000012
+  gRk3399PkgTokenSpaceGuid.PcdProductUrl|"Unknown"|VOID*|0x00000013
+  gRk3399PkgTokenSpaceGuid.PcdMemoryVendorName|"Unknown"|VOID*|0x00000014
+  gRk3399PkgTokenSpaceGuid.PcdFamilyName|"Unknown"|VOID*|0x00000015
+
+  gRk3399PkgTokenSpaceGuid.PcdFirmwareBlockSize|0x0|UINT32|0x00000029
+  gRk3399PkgTokenSpaceGuid.PcdGicGsivId|0x0|UINT32|0x00000030
+  gRk3399PkgTokenSpaceGuid.PcdGicPmuIrq0|0x0|UINT32|0x00000031
+  gRk3399PkgTokenSpaceGuid.PcdGicPmuIrq1|0x0|UINT32|0x00000032
+  gRk3399PkgTokenSpaceGuid.PcdGicPmuIrq2|0x0|UINT32|0x00000033
+  gRk3399PkgTokenSpaceGuid.PcdGicPmuIrq3|0x0|UINT32|0x00000034
+
+  gRk3399PkgTokenSpaceGuid.PcdRkMtlMailBoxBase|0x0010f000|UINT64|0x00001000
+  gRk3399PkgTokenSpaceGuid.PcdRkMtlMailBoxSize|0x100|UINT32|0x00001001
+  gRk3399PkgTokenSpaceGuid.PcdRkMtlMailBoxSmcId|0x82000010|UINT32|0x00001002
+
   # RK3399 Registers Base Address
-  gRk3399PkgTokenSpaceGuid.PcdGrfRegisterBase|0xFF770000|UINT32|0x00000081
+  gRk3399PkgTokenSpaceGuid.PcdGrfRegisterBase|0xFF770000|UINT32|0x00001003
+
+  # RK3399 UART
+  gRk3399PkgTokenSpaceGuid.UartClkInHz|24000000|UINT32|0x00001011
+  gRk3399PkgTokenSpaceGuid.UartInteger|0|UINT32|0x00001012
+  gRk3399PkgTokenSpaceGuid.UartFractional|0|UINT32|0x00001013
+
+  # Storage Offsets
+  gRk3399PkgTokenSpaceGuid.PcdNvStorageEventLogBase|0x0|UINT32|0x00002000
+  gRk3399PkgTokenSpaceGuid.PcdNvStorageEventLogSize|0x0|UINT32|0x00002001
+  gRk3399PkgTokenSpaceGuid.PcdNvStorageVariableBase|0x0|UINT32|0x00002002
+  gRk3399PkgTokenSpaceGuid.PcdNvStorageFtwSpareBase|0x0|UINT32|0x00002003
+  gRk3399PkgTokenSpaceGuid.PcdNvStorageFtwWorkingBase|0x0|UINT32|0x00002004
+  gRk3399PkgTokenSpaceGuid.PcdFdStorageOffset|0x00100000|UINT32|0x00002010
+
+  # FAN Control
+  gRk3399PkgTokenSpaceGuid.PcdFanGpioBank|0xFF|UINT8|0x00003001
+  gRk3399PkgTokenSpaceGuid.PcdFanGpioPin|0xFF|UINT8|0x00003002
+  gRk3399PkgTokenSpaceGuid.PcdFanGpioActiveHigh|TRUE|BOOLEAN|0x00003003
+ 
+
+
+[PcdsFixedAtBuild, PcdsPatchableInModule, PcdsDynamic, PcdsDynamicEx]
+  gRk3399PkgTokenSpaceGuid.PcdPlatformResetDelay|0|UINT32|0x00004000
+  gRk3399PkgTokenSpaceGuid.PcdSystemTableMode|0|UINT32|0x00004001
+  gRk3399PkgTokenSpaceGuid.PcdCpuClock|2|UINT32|0x00004002
+  gRk3399PkgTokenSpaceGuid.PcdCustomCpuClock|816|UINT32|0x00004003
+  gRk3399PkgTokenSpaceGuid.PcdMultiPhy1Mode|0|UINT32|0x00004004
+  gRk3399PkgTokenSpaceGuid.PcdFanMode|FALSE|BOOLEAN|0x00040005
