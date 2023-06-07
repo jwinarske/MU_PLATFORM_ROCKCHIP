@@ -63,55 +63,44 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-t
 
 
 ### Build OPTEE OS
-
+ 
     make \
     CROSS_COMPILE=arm-none-linux-gnueabihf- \
     PLATFORM=rockchip-rk3399 \
     CFG_ARM64_core=y \
+    CFG_TEE_CORE_LOG_LEVEL=4 \
+    CFG_TEE_TA_LOG_LEVEL=4 \
     CFG_RPMB_FS=y \
     CFG_RPMB_FS_DEV_ID=0 \
-    CFG_CORE_HEAP_SIZE=524288 \
     CFG_RPMB_WRITE_KEY=y \
     CFG_CORE_HEAP_SIZE=524288 \
     CFG_CORE_DYN_SHM=y \
     CFG_RPMB_TESTKEY=y \
     CFG_REE_FS=n \
-    CFG_CORE_ARM64_PA_BITS=48 \
-    CFG_TEE_CORE_LOG_LEVEL=1 \
-    CFG_TEE_TA_LOG_LEVEL=1 \
-    CFG_SCTLR_ALIGNMENT_CHECK=n \
     CFG_TEE_BENCHMARK=n \
-    CFG_CORE_SEL1_SPMC=y \
+    CFG_CORE_ARM64_PA_BITS=48 \
+    CFG_SCTLR_ALIGNMENT_CHECK=n \
     CFG_ULIBS_SHARED=y \
+    CFG_CORE_SEL1_SPMC=y \
     NOWERROR=1 \
     OPTEE_CLIENT_EXPORT=`pwd`/out/usr \
     TEEC_EXPORT=`pwd`/out/usr \
     EARLY_TA_PATHS=`pwd`/../../MSFT/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
-    V=1 all -j
-
-Artifacts
-    ./out/arm-plat-rockchip/core/tee-pager_v2.bin
-    ./out/arm-plat-rockchip/core/tee-header_v2.bin
-    ./out/arm-plat-rockchip/core/tee-raw.bin
-    ./out/arm-plat-rockchip/core/tee.bin
-    ./out/arm-plat-rockchip/core/tee-pageable_v2.bin
-    ./out/arm-plat-rockchip/core/tee.elf
-    ./out/arm-plat-rockchip/export-ta_arm64/lib/87bb6ae8-4b1d-49fe-9986-2b966132c309.elf
-    ./out/arm-plat-rockchip/export-ta_arm64/lib/be807bbd-81e1-4dc4-bd99-3d363f240ece.elf
-    ./out/arm-plat-rockchip/export-ta_arm64/lib/4b3d937e-d57e-418b-8673-1c04f2420226.elf
-    ./out/arm-plat-rockchip/export-ta_arm64/lib/71855bba-6055-4293-a63f-b0963a737360.elf
+    V=1 all mem_usage -j
 
 
-include core/arch/arm/cpu/cortex-armv8-0.mk
-$(call force,CFG_TEE_CORE_NB_CORE,6)
-$(call force,CFG_ARM_GICV3,y)
-CFG_CRYPTO_WITH_CE ?= y
+Determine entry point address matches CFG_TZDRAM_START
+
+    readelf -h ./out/arm-plat-rockchip/core/tee.elf
 
 CFG_TZDRAM_START ?= 0x30000000
 CFG_TZDRAM_SIZE  ?= 0x02000000
 CFG_SHMEM_START  ?= 0x32000000
 CFG_SHMEM_SIZE   ?= 0x00400000
 
+Locate pager to TZDRAM CFG_TZDRAM_START
+
+    ./out/arm-plat-rockchip/core/tee-pager_v2.bin
 
 ### Build Trusted Firmware A with SPD=opteed
 
@@ -135,7 +124,7 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/a
     CFG_TA_DEBUG=1 \
     FEATURE_DETECTION=1 \
     DEBUG=1 \
-    clean all fip \
+    clean bl31 \
     V=1
 
 Print fip.bin info

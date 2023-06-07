@@ -11,16 +11,7 @@
 	#address-cells = <1>;
 
 	images {
-		uefi {
-			description = "UEFI";
-			data-position = <0x00100000>;
-			data-size = <0x100000>;
-			type = "standalone";
-			arch = "arm64";
-			os = "UEFI";
-			compression = "none";
-			load = <0x00a00000>;
-		};
+
 		atf-1 {
 			description = "ARM Trusted Firmware";
 			data = /incbin/("./bl31_0x00040000.bin");
@@ -33,19 +24,47 @@
 				algo = "sha256";
 			};
 		};
+
 		atf-2 {
-				description = "ARM Trusted Firmware";
-				data = /incbin/("./bl31_0xff8c0000.bin");
-				type = "firmware";
-				arch = "arm64";
-				os = "arm-trusted-firmware";
-				compression = "none";
-				load = <0xff8c0000>;
-				hash {
-						algo = "sha256";
-				};
+			description = "ARM Trusted Firmware";
+			data = /incbin/("./bl31_0xff3b0000.bin");
+			type = "firmware";
+			arch = "arm64";
+			os = "arm-trusted-firmware";
+			compression = "none";
+			load = <0xff3b0000>;
+			hash {
+					algo = "sha256";
+			};
 		};
+
 		atf-3 {
+			description = "ARM Trusted Firmware";
+			data = /incbin/("./bl31_0xff8c0000.bin");
+			type = "firmware";
+			arch = "arm64";
+			os = "arm-trusted-firmware";
+			compression = "none";
+			load = <0xff8c0000>;
+			hash {
+					algo = "sha256";
+			};
+		};
+
+		atf-4 {
+			description = "ARM Trusted Firmware";
+			data = /incbin/("./bl31_0xff8c1000.bin");
+			type = "firmware";
+			arch = "arm64";
+			os = "arm-trusted-firmware";
+			compression = "none";
+			load = <0xff8c1000>;
+			hash {
+				algo = "sha256";
+			};
+		};
+
+		atf-5 {
 			description = "ARM Trusted Firmware";
 			data = /incbin/("./bl31_0xff8c2000.bin");
 			type = "firmware";
@@ -57,20 +76,46 @@
 				algo = "sha256";
 			};
 		};
-		optee {
+
+		optee-1 {
 			description = "OP-TEE";
-			data = /incbin/("../Silicon/Rockchip/rkbin/bin/rk33/rk3399_bl32_v2.10.bin");
+			data = /incbin/("./bl31_0x30000000.bin");
 			type = "firmware";
 			arch = "arm64";
 			os = "op-tee";
 			compression = "none";
-			load = <0x8400000>;
+			load = <0x30000000>;
 			hash {
 				algo = "sha256";
 			};
 		};
+
+		optee-2 {
+			description = "OP-TEE";
+			data = /incbin/("./bl31_0x30200000.bin");
+			type = "firmware";
+			arch = "arm64";
+			os = "op-tee";
+			compression = "none";
+			load = <0x30000000>;
+			hash {
+				algo = "sha256";
+			};
+		};
+
+		uefi {
+			description = "UEFI";
+			data-position = <0x00100000>;
+			data-size = <0x100000>;
+			type = "standalone";
+			arch = "arm64";
+			os = "UEFI";
+			compression = "none";
+			load = <0x00200000>;
+		};
+
 		fdt {
-			description = "UEFI dtb";
+			description = "@BOARDTYPE@ dtb";
 			data = /incbin/("../dtb/@BOARDTYPE@.dtb");
 			type = "flat_dt";
 			arch = "arm64";
@@ -87,9 +132,7 @@
 		conf {
 			description = "@BOARDTYPE@";
 			rollback-index = <0x0>;
-			firmware = "atf-1";
-			loadables = "uefi", "atf-2", "atf-3", "optee";
-			
+			loadables = "atf-1", "atf-2", "atf-3", "atf-4", "atf-5", "optee-1", "optee-2", "uefi";
 			fdt = "fdt";
 			signature {
 				algo = "sha256,rsa2048";

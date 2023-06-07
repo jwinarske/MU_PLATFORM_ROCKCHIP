@@ -52,7 +52,7 @@ class CommonPlatform:
         "Common/MU",
         "Common/MU_TIANO",
         "Common/MU_OEM_SAMPLE",
-        "Silicon/ARM/MU_TIANO",
+        "Silicon/Arm/MU_TIANO",
         "Silicon/Rockchip",
         "Features/DFCI",
         "Features/CONFIG",
