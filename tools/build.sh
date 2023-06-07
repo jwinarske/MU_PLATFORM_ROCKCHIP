@@ -176,6 +176,8 @@ build_atf() {
   echo " => Building bl31.elf"
 
   pushd ../Silicon/Arm/TFA
+  git reset --hard
+  git apply ../../../SecureBoot/patches/0001-USB-load-to-RAM-config.patch
 
   make \
   CROSS_COMPILE=aarch64-linux-gnu- \
