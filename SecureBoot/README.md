@@ -2,10 +2,12 @@
 
 _BL33 refers to UFEI_
 
-* optee_os needs ASLR seed implementation
+* optee_os needs 
+  * ASLR seed implementation
+  * HW ID (eFuse) implementation
 
 ### Build optee-os-tadevkit
-   
+
 See build_ta_sdk() in tools/build.sh
 
 ### Build Trusted App (TA) fTPM
@@ -13,7 +15,7 @@ See build_ta_sdk() in tools/build.sh
 See build_ftpm() in tools/build.sh
 
 ### Build OPTEE OS
- 
+
 See build_optee_os() in tools/build.sh
 
 ### Build Trusted Firmware A with SPD=opteed
