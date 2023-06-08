@@ -31,6 +31,7 @@
 
 [Guids.common]
   gRk3399PkgTokenSpaceGuid   = { 0xa0a4631b, 0xaba4, 0x4e73, { 0x90, 0x48, 0xae, 0x63, 0x84, 0xd6, 0x51, 0xd4 } }
+  gDwEmmcDxeTokenSpaceGuid   = { 0x6fdd76a9, 0xf220, 0x4f1d,  { 0x9c, 0xcf, 0xbc, 0x2d, 0x68, 0x29, 0xab, 0x9c }}
 
 [PcdsFixedAtBuild.common]
   gRk3399PkgTokenSpaceGuid.PcdFdtBaseAddress|0x00B00000|UINT64|0x00000001
@@ -81,7 +82,9 @@
   gRk3399PkgTokenSpaceGuid.PcdFanGpioPin|0xFF|UINT8|0x00003002
   gRk3399PkgTokenSpaceGuid.PcdFanGpioActiveHigh|TRUE|BOOLEAN|0x00003003
  
-
+  # DwEmmc Driver PCDs
+  gDwEmmcDxeTokenSpaceGuid.PcdDwEmmcDxeBaseAddress|0x0|UINT32|0x00000001
+  gDwEmmcDxeTokenSpaceGuid.PcdDwEmmcDxeClockFrequencyInHz|0x0|UINT32|0x00000002
 
 [PcdsFixedAtBuild, PcdsPatchableInModule, PcdsDynamic, PcdsDynamicEx]
   gRk3399PkgTokenSpaceGuid.PcdPlatformResetDelay|0|UINT32|0x00004000

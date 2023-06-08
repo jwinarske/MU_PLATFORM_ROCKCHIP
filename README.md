@@ -17,10 +17,21 @@ Goals:
 * Windows 11 with Secure Boot enabled
 * ARM Compliance
 
+Dev Environments:
+* Windows not supported, PRs welcome
+* Fedora
+* Ubuntu
 
 ### Install system runtime packages
 
-    sudo dnf install mono-complete nuget make python3 python3-pip gcc-aarch64-linux-gnu gcc-arm-linux-gnu
+Fedora
+
+    sudo dnf install mono-complete nuget make python3 python3-pip gcc-aarch64-linux-gnu libusb-dev
+
+Ubuntu
+
+    sudo apt-get install mono-complete nuget make python3 python3-pip gcc-aarch64-linux-gnu gcc-arm-none-eabi build-essential git libusb-1.0-0-dev device-tree-compiler
+
 
 Download and install toolchain and add the bin folder to path
 
@@ -33,7 +44,6 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-t
 ### Build PinebookPro UEFI
 
     export GCC5_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-
-    export PYTOOL_TEMPORARILY_IGNORE_NESTED_EDK_PACKAGES=true
     stuart_setup -c Platforms/Pine64/PinebookPkg/PlatformBuild.py
     stuart_update -c Platforms/Pine64/PinebookPkg/PlatformBuild.py
     stuart_build -c Platforms/Pine64/PinebookPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
@@ -41,7 +51,6 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-t
 ### Build PinePhonePro UEFI
 
     export GCC5_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-
-    export PYTOOL_TEMPORARILY_IGNORE_NESTED_EDK_PACKAGES=true
     stuart_setup -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py
     stuart_update -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py
     stuart_build -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5

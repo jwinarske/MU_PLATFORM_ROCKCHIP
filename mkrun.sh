@@ -4,6 +4,29 @@ set -e
 
 rm -rf staging |true
 
+build_levinboot() {
+
+  pushd ../IPL/levinboot
+
+  git reset --hard 2fbeba71d46929d5e6980911d482e65ad6fb17f1
+  git apply ../0005-Boot-BL31-BL32-BL33-from-RAM.patch
+
+  rm -rf _build |true
+  mkdir _build && pushd _build
+
+  CROSS=aarch64-linux-gnu
+  CC=$CROSS-gcc OBJCOPY=$CROSS-objcopy LD=$CROSS-ld ../configure.py --with-tf-a-headers ../../../Silicon/Arm/TFA/include/export --boards pbp
+  ninja
+
+  mkdir tools && pushd tools
+  CC=gcc ../../tools/configure
+  ninja
+  popd
+
+  popd
+  popd
+}
+
 pushd tools
 ./build.sh
 popd
@@ -19,6 +42,8 @@ mkdir optee
 cd optee
 ../../tools/extractelf.py ../../Silicon/OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf optee
 popd
+
+build_levinboot
 
 sudo IPL/levinboot/_build/tools/usbtool \
   --call IPL/levinboot/_build/sramstage-usb.bin \

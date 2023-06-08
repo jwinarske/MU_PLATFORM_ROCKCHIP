@@ -166,7 +166,7 @@ build_optee_os() {
   TEEC_EXPORT=`pwd`/out/usr \
   EARLY_TA_PATHS="`pwd`/../../MSFT/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
                   `pwd`/out/arm-plat-rockchip/ta/avb/023f8f1a-292a-432b-8fc4-de8471358067.stripped.elf" \
-  all mem_usage V=1 -j
+  all mem_usage V=0 -j
 
   readelf -h ./out/arm-plat-rockchip/core/tee.elf
 
@@ -178,6 +178,7 @@ build_atf() {
 
   pushd ../Silicon/Arm/TFA
   git reset --hard
+  rm -rf plat/rockchip/rk3399/include/shared/bl32_param.h |true
   git apply ../../../SecureBoot/patches/0001-USB-load-to-RAM-config.patch
 
   make \
@@ -190,7 +191,7 @@ build_atf() {
   CFG_TEE_TA_LOG_LEVEL=4 \
   CFG_TA_DEBUG=1 \
   DEBUG=1 \
-  bl31 V=1 -j
+  bl31 V=0 -j
 
   readelf -h ./build/rk3399/debug/bl31/bl31.elf
 
@@ -264,29 +265,6 @@ build_fit() {
   rm -f *_0x*.bin ${board_upper}_EFI.its
 }
 
-build_levinboot() {
-
-  pushd ../IPL/levinboot
-
-  git reset --hard 2fbeba71d46929d5e6980911d482e65ad6fb17f1
-  git apply ../0005-Boot-BL31-BL32-BL33-from-RAM.patch
-
-  rm -rf _build |true
-  mkdir _build && pushd _build
-
-  CROSS=aarch64-linux-gnu
-  CC=$CROSS-gcc OBJCOPY=$CROSS-objcopy LD=$CROSS-ld ../configure.py --with-tf-a-headers ../../../Silicon/Arm/TFA/include/export --boards pbp
-  ninja
-
-  mkdir tools && pushd tools
-  CC=gcc ../../tools/configure
-  ninja
-  popd
-
-  popd
-  popd
-}
-
 make_sdimg() {
 
   build_uefi $1
@@ -313,7 +291,6 @@ make_sdimg() {
   fdisk -l ${board_upper}_EFI.img
 }
 
-build_levinboot
 build_ta_sdk
 build_optee_examples
 build_ftpm

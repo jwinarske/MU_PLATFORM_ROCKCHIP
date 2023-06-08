@@ -11,10 +11,10 @@
 #define CONFIGPROFILESGENERATED_H
 // The config public header must be included prior to this file
 // Generated Header
-//  Script: /mnt/raid10/rockchip/MU_PLATFORM_ROCKCHIP/Features/CONFIG/SetupDataPkg/Tools/KnobService.py
-//  Schema: /mnt/raid10/rockchip/MU_PLATFORM_ROCKCHIP/Platforms/Pine64/PinePhoneProPkg/CfgData/PinePhoneProPkgCfgData.xml
-//  Profile: /mnt/raid10/rockchip/MU_PLATFORM_ROCKCHIP/Platforms/Pine64/PinePhoneProPkg/CfgData/Profile0PinePhoneProPkgCfgData.csv
-//  Profile: /mnt/raid10/rockchip/MU_PLATFORM_ROCKCHIP/Platforms/Pine64/PinePhoneProPkg/CfgData/Profile1PinePhoneProPkgCfgData.csv
+//  Script: /home/joel.winarske@toyotaconnected.com/development/MU_PLATFORM_ROCKCHIP/Features/CONFIG/SetupDataPkg/Tools/KnobService.py
+//  Schema: /home/joel.winarske@toyotaconnected.com/development/MU_PLATFORM_ROCKCHIP/Platforms/Pine64/PinePhoneProPkg/CfgData/PinePhoneProPkgCfgData.xml
+//  Profile: /home/joel.winarske@toyotaconnected.com/development/MU_PLATFORM_ROCKCHIP/Platforms/Pine64/PinePhoneProPkg/CfgData/Profile0PinePhoneProPkgCfgData.csv
+//  Profile: /home/joel.winarske@toyotaconnected.com/development/MU_PLATFORM_ROCKCHIP/Platforms/Pine64/PinePhoneProPkg/CfgData/Profile1PinePhoneProPkgCfgData.csv
 
 // Profile Profile0PinePhoneProPkgCfgData
 typedef struct {

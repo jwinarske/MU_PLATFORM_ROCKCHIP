@@ -30,7 +30,6 @@
 [Packages]
   EmbeddedPkg/EmbeddedPkg.dec
   MdePkg/MdePkg.dec
-  Silicon/Rockchip/Rk3399Pkg/Drivers/DwEmmcDxe/DwEmmcDxe.dec  
   Silicon/Rockchip/Rk3399Pkg/Rk3399Pkg.dec
 
 [LibraryClasses]
