@@ -3,10 +3,10 @@
 set -e
 
 # For TA SDK 32 flavor
-export PATH=$PATH:$HOME/Downloads/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin
+export PATH=$PATH:$HOME/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin
 
 # For SoC M0
-export PATH=$PATH:$HOME/Downloads/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi/bin
+export PATH=$PATH:$HOME/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi/bin
 
 rm -rf staging |true
 
@@ -16,17 +16,18 @@ build_levinboot() {
 
   git reset --hard 2fbeba71d46929d5e6980911d482e65ad6fb17f1
   git apply ../0005-Boot-BL31-BL32-BL33-from-RAM.patch
+  cp ../CMakeLists.txt tools
 
   rm -rf _build |true
   mkdir _build && pushd _build
 
   CROSS=aarch64-linux-gnu
   CC=$CROSS-gcc OBJCOPY=$CROSS-objcopy LD=$CROSS-ld ../configure.py --with-tf-a-headers ../../../Silicon/Arm/TFA/include/export --boards pbp
-  ninja
+  ninja -j$(nproc)
 
   mkdir tools && pushd tools
-  CC=gcc ../../tools/configure
-  ninja
+  CC=gcc cmake -GNinja ../../tools -DCMAKE_VERBOSE_MAKEFILE=1
+  ninja -j$(nproc) -v
   popd
 
   popd

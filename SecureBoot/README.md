@@ -3,7 +3,7 @@
 _BL33 refers to UFEI_
 
 * optee_os needs 
-  * ASLR seed implementation
+  * Crypto Driver (TRNG+)
   * HW ID (eFuse) implementation
 
 ### Build optee-os-tadevkit

@@ -16,16 +16,15 @@ Status
 
 * USB boot not yet tested on Pinebook Pro
 
-* optee_os needs ASLR seed implementation
-https://patchwork.ozlabs.org/project/uboot/patch/20200331094001.13441-3-troy.lin@rock-chips.com/
-https://github.com/rockchip-linux/kernel/issues/223
+* optee_os needs crypto drivers
 
 
 Project Goals
+* OSS aarch64 Secure Boot (Measured Boot + fTPM)
 * Linux FDT boot with Secure Boot enabled
   * Red Hat Enterprise Linux (RHEL)
   * Fedora
-* Windows 11 with Secure Boot enabled
+* Windows 11 Bitlocker
 * ARM System Ready Compliance
 
 Dev Environments:
@@ -37,11 +36,12 @@ Dev Environments:
 
 Fedora
 
-    sudo dnf install mono-complete nuget make python3 python3-pip gcc-aarch64-linux-gnu libusb-devel
+    sudo dnf install mono-complete nuget make python3 python3-pip gcc-aarch64-linux-gnu libusb-devel cmake
 
 Ubuntu
 
-    sudo apt-get install mono-complete nuget make python3 python3-pip gcc-aarch64-linux-gnu gcc-arm-none-eabi build-essential git libusb-1.0-0-dev device-tree-compiler
+    sudo apt-get install mono-complete nuget make python3 python3-pip gcc-aarch64-linux-gnu gcc-arm-none-eabi build-essential git libusb-1.0-0-dev device-tree-compiler ninja-build
+    sudo snap install cmake --classic
 
 
 Download and install the following toolchains and add bin folders to PATH
