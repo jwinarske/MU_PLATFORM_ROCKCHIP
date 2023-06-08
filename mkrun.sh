@@ -6,7 +6,7 @@ rm -rf staging |true
 
 build_levinboot() {
 
-  pushd ../IPL/levinboot
+  pushd IPL/levinboot
 
   git reset --hard 2fbeba71d46929d5e6980911d482e65ad6fb17f1
   git apply ../0005-Boot-BL31-BL32-BL33-from-RAM.patch

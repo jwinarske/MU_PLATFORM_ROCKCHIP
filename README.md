@@ -26,7 +26,7 @@ Dev Environments:
 
 Fedora
 
-    sudo dnf install mono-complete nuget make python3 python3-pip gcc-aarch64-linux-gnu libusb-dev
+    sudo dnf install mono-complete nuget make python3 python3-pip gcc-aarch64-linux-gnu libusb-devel
 
 Ubuntu
 
