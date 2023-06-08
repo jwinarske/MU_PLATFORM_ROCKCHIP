@@ -11,8 +11,8 @@
 #define CONFIGSERVICEGENERATED_H
 // The config public header must be included prior to this file
 // Generated Header
-//  Script: /home/joel.winarske@toyotaconnected.com/development/MU_PLATFORM_ROCKCHIP/Features/CONFIG/SetupDataPkg/Tools/KnobService.py
-//  Schema: /home/joel.winarske@toyotaconnected.com/development/MU_PLATFORM_ROCKCHIP/Platforms/Pine64/PinePhoneProPkg/CfgData/PinePhoneProPkgCfgData.xml
+//  Script: /mnt/raid10/rockchip/MU_PLATFORM_ROCKCHIP/Features/CONFIG/SetupDataPkg/Tools/KnobService.py
+//  Schema: /mnt/raid10/rockchip/MU_PLATFORM_ROCKCHIP/Platforms/Pine64/PinePhoneProPkg/CfgData/PinePhoneProPkgCfgData.xml
 
 STATIC CONST UINT16  CachedPolicySize = 0xe9;
 STATIC CHAR8 CachedPolicy[0xe9];

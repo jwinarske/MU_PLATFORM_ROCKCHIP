@@ -59,9 +59,9 @@
 				algo = "sha256";
 			};
 		};
-		optee-1 {
+		tee-1 {
 			description = "OP-TEE";
-			data = /incbin/("./optee_0x30000000.bin");
+			data = /incbin/("./tee_0x30000000.bin");
 			type = "firmware";
 			arch = "arm64";
 			os = "op-tee";
@@ -71,9 +71,9 @@
 				algo = "sha256";
 			};
 		};
-		optee-2 {
+		tee-2 {
 			description = "OP-TEE";
-			data = /incbin/("./optee_0x30200000.bin");
+			data = /incbin/("./tee_0x30200000.bin");
 			type = "firmware";
 			arch = "arm64";
 			os = "op-tee";

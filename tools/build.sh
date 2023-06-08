@@ -25,17 +25,15 @@ build_ta_sdk() {
   echo " => Building Trusted App SDK"
 
   pushd ../Silicon/OP-TEE/optee_os
-  git reset --hard
-  git apply ../../../SecureBoot/patches/optee_os/0001-allow-setting-sysroot-for-libgcc-lookup.patch
-  # git apply ../../../SecureBoot/patches/optee_os/0002-optee-enable-clang-support.patch
-  git apply ../../../SecureBoot/patches/optee_os/0003-core-link-add-no-warn-rwx-segments.patch
-  #git apply ../../../SecureBoot/patches/optee_os/0004-core-Define-section-attributes-for-clang.patch
-
-  export PATH=$PATH:/home/joel/Downloads/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin
+  git reset --hard e8abbcfbdf63437a640d5fd87b7e191caab6445e
+  rm -rf out |true
 
   make \
   CROSS_COMPILE=arm-none-linux-gnueabihf- \
-  PLATFORM=rockchip-rk3399 \
+  PLATFORM=rockchip \
+  PLATFORM_FLAVOR=rk3399 \
+  CFG_DT=n \
+  CFG_EXTERNAL_DTB_OVERLAY=n \
   CFG_ARM64_core=y \
   CFG_RPMB_FS=y \
   CFG_RPMB_FS_DEV_ID=0 \
@@ -53,18 +51,18 @@ build_ta_sdk() {
   NOWERROR=1 \
   OPTEE_CLIENT_EXPORT=`pwd`/out/usr \
   TEEC_EXPORT=`pwd`/out/usr \
-  all -j
+  all V=0 -j
 
   popd
 }
 
 compile_optee_example() {
-  rm -rf dyn_list | true 
+  rm -rf dyn_list |true 
   make \
   CROSS_COMPILE=aarch64-linux-gnu- \
   PLATFORM=rockchip-rk3399 \
   TA_DEV_KIT_DIR=`pwd`/../../../optee_os/out/arm-plat-rockchip/export-ta_arm64 \
-  -j
+  all V=0 -j
   mkdir -p ${TA_STAGING_DIR}
   cp *.stripped.elf ${TA_STAGING_DIR}
   rm -rf dyn_list
@@ -123,6 +121,8 @@ build_ftpm() {
   git apply ../../../SecureBoot/patches/fTPM/0001-add-enum-to-ta-flags.patch
 
   pushd Samples/ARM32-FirmwareTPM/optee_ta
+
+  rm -rf out |true
   
   make \
   TA_CROSS_COMPILE=aarch64-linux-gnu- \
@@ -133,7 +133,10 @@ build_ftpm() {
   OPTEE_CLIENT_EXPORT=`pwd`/../../../../../OP-TEE/optee_os/out/usr/ \
   TEEC_EXPORT=`pwd`/../../../../../OP-TEE/optee_os/out/usr/ \
   -I`pwd`/../../../../../OP-TEE/optee_os \
-  -j
+  all -j
+
+  echo ** fTPM - MSFT **
+  readelf -h ./out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf
 
   popd
   popd
@@ -146,7 +149,11 @@ build_optee_os() {
 
   make \
   CROSS_COMPILE=arm-none-linux-gnueabihf- \
-  PLATFORM=rockchip-rk3399 \
+  PLATFORM=rockchip \
+  PLATFORM_FLAVOR=rk3399 \
+  FEATURE_DETECTION=y \
+  CFG_DT=n \
+  CFG_EXTERNAL_DTB_OVERLAY=n \
   CFG_ARM64_core=y \
   CFG_CORE_HEAP_SIZE=524288 \
   CFG_CORE_DYN_SHM=y \
@@ -159,6 +166,9 @@ build_optee_os() {
   CFG_REE_FS=n \
   CFG_TEE_CORE_LOG_LEVEL=4 \
   CFG_TEE_TA_LOG_LEVEL=4 \
+  CFG_TA_MEASURED_BOOT=y \
+  CFG_TA_EVENT_LOG_SIZE=2048 \
+  CFG_TA_DEBUG=1 \
   CFG_TEE_BENCHMARK=n \
   CFG_ULIBS_SHARED=y \
   NOWERROR=1 \
@@ -168,6 +178,7 @@ build_optee_os() {
                   `pwd`/out/arm-plat-rockchip/ta/avb/023f8f1a-292a-432b-8fc4-de8471358067.stripped.elf" \
   all mem_usage V=0 -j
 
+  echo "** TEE - out/arm-plat-rockchip/core/tee.elf **"
   readelf -h ./out/arm-plat-rockchip/core/tee.elf
 
   popd
@@ -177,24 +188,28 @@ build_atf() {
   echo " => Building bl31.elf"
 
   pushd ../Silicon/Arm/TFA
-  git reset --hard
+  git reset --hard d3e71ead6ea5bc3555ac90a446efec84ef6c6122
   rm -rf plat/rockchip/rk3399/include/shared/bl32_param.h |true
   git apply ../../../SecureBoot/patches/0001-USB-load-to-RAM-config.patch
+
+  rm -rf build |true
 
   make \
   CROSS_COMPILE=aarch64-linux-gnu- \
   PLAT=rk3399 \
   SPD=opteed \
-  BL32=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee-header_v2.bin \
-  BL32_EXTRA1=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee-pager_v2.bin \
-  BL32_EXTRA2=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee-pageable_v2.bin \
-  CFG_TEE_TA_LOG_LEVEL=4 \
-  CFG_TA_DEBUG=1 \
+  ERRATA_A53_1530924=1 \
+  MEASURED_BOOT=1 \
+  BL32=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf \
   DEBUG=1 \
-  bl31 V=0 -j
+  clean all V=0 -j
 
+  #
+  #TRUSTED_BOARD_BOOT=1 \
+
+  echo "** TFA - build/rk3399/debug/bl31/bl31.elf **"
   readelf -h ./build/rk3399/debug/bl31/bl31.elf
-
+ 
   popd
 }
 
@@ -249,23 +264,23 @@ build_fit() {
 
   # extract PT_LOAD regions to individual files
   ./extractelf.py ${BL31} atf
-  ./extractelf.py ${BL32} optee
+  ./extractelf.py ${BL32} tee
   ls -la *_0x*.bin
 
   # create board .its from template
-  sed "s,@BOARDTYPE@,${type},g" uefi.its > ${board_upper}_EFI.its
+  sed "s,@BOARDTYPE@,${type},g" image-sd.its > ${board_upper}_EFI.its
 
-  # create .itb
+  # create fit
   ${RKBIN}/tools/mkimage -f ${board_upper}_EFI.its -E ${board_upper}_EFI.itb
 
   BL33=../Build/${board}Pkg/${UEFI_BUILD_TYPE}/FV/${board_upper}.fd
 
-  # write UEFI image to SD image
+  # write UEFI image
   dd if=${BL33} of=${board_upper}_EFI.itb bs=512 seek=$SD_IMG_OFFSET_UEFI
   rm -f *_0x*.bin ${board_upper}_EFI.its
 }
 
-make_sdimg() {
+make_image_sd() {
 
   build_uefi $1
   build_fit $1 $2 $3
@@ -308,5 +323,5 @@ test -r ${BL31} || (
   false
 )
 
-make_sdimg PinebookPro rk3399-pinebook-pro
-make_sdimg PinePhonePro rk3399-pinephone-pro
+make_image_sd PinebookPro rk3399-pinebook-pro
+make_image_sd PinePhonePro rk3399-pinephone-pro
