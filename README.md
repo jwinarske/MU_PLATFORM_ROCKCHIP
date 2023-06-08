@@ -2,25 +2,36 @@
 
 MU Platform (UEFI) for Rockchip
 
-Status:
-* PinePhoneProPkg is active dev target
-* Full stack building, no pre-built artifacts
-* loads and runs from RAM -> custom BL31 -> BL32 -> BL33 using USB boot
-* Jumps into UEFI image printing UEFI version
-* More work to create a working image
-* Not tested on Pinebook Pro
+Status
 
-Goals:
+* PinePhoneProPkg is active dev target
+
+* Full stack building with latest ATF,OP-TEE, and MU
+
+* loads and runs from RAM -> custom BL31 -> BL32 -> BL33 using USB boot
+
+* Jumps into UEFI image printing UEFI version
+
+* Current focus area is UEFI
+
+* USB boot not yet tested on Pinebook Pro
+
+* optee_os needs ASLR seed implementation
+https://patchwork.ozlabs.org/project/uboot/patch/20200331094001.13441-3-troy.lin@rock-chips.com/
+https://github.com/rockchip-linux/kernel/issues/223
+
+
+Project Goals
 * Linux FDT boot with Secure Boot enabled
-  Red Hat Enterprise Linux (RHEL)
-  Fedora
+  * Red Hat Enterprise Linux (RHEL)
+  * Fedora
 * Windows 11 with Secure Boot enabled
-* ARM Compliance
+* ARM System Ready Compliance
 
 Dev Environments:
-* Windows not supported, PRs welcome
 * Fedora
 * Ubuntu
+* Windows not supported, PRs welcome
 
 ### Install system runtime packages
 
@@ -33,9 +44,12 @@ Ubuntu
     sudo apt-get install mono-complete nuget make python3 python3-pip gcc-aarch64-linux-gnu gcc-arm-none-eabi build-essential git libusb-1.0-0-dev device-tree-compiler
 
 
-Download and install toolchain and add the bin folder to path
+Download and install the following toolchains and add bin folders to PATH
 
-https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz?rev=9929cb6c0e8948f0ba1a621167fcd56d&hash=1259035C716B41C675DCA7D76913684B5AD8C239
+* arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf
+* arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi
+
+https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
 
 ### Install dependent Python modules
 
@@ -55,7 +69,12 @@ https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-t
     stuart_update -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py
     stuart_build -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
 
-### Run stack on Pine Phone Pro using USB
+### Build Stack
+
+    cd tools
+    ./build.sh
+
+### Build stack and Run on Pine Phone Pro using USB
 
 Press and hold recovery button while plugging in USB to Pine Phone Pro device.  Release button after unit is powered on.  Issue:
 

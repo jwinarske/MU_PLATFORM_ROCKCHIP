@@ -2,7 +2,11 @@
 
 set -e
 
-export PATH=$PATH:$HOME/Downloads/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin:$HOME/Downloads/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi/bin
+# For TA SDK 32 flavor
+export PATH=$PATH:$HOME/Downloads/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin
+
+# For SoC M0
+export PATH=$PATH:$HOME/Downloads/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi/bin
 
 rm -rf staging |true
 

@@ -2,17 +2,20 @@
 
 set -e
 
-BL31=`pwd`/../Silicon/Arm/TFA/build/rk3399/debug/bl31/bl31.elf
-BL32=`pwd`/../Silicon/OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf
-
-TRUST_INI=RK3399TRUST.ini
-MINIALL_INI=RK3399MINIALL.ini
+# set to 1 to enable verbose build output
+VERBOSE=0
 
 UEFI_BUILD_TYPE=DEBUG_GCC5
+
+BL31=`pwd`/../Silicon/Arm/TFA/build/rk3399/debug/bl31/bl31.elf
+BL32=`pwd`/../Silicon/OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf
 
 RKBIN=`pwd`/../Silicon/Rockchip/rkbin
 
 TA_STAGING_DIR=`pwd`/../staging/ta
+
+TRUST_INI=RK3399TRUST.ini
+MINIALL_INI=RK3399MINIALL.ini
 
 # SD Image Layout
 SD_BLOCK_SIZE=512
@@ -51,7 +54,7 @@ build_ta_sdk() {
   NOWERROR=1 \
   OPTEE_CLIENT_EXPORT=`pwd`/out/usr \
   TEEC_EXPORT=`pwd`/out/usr \
-  all V=0 -j
+  all V=$VERBOSE -j
 
   popd
 }
@@ -62,7 +65,8 @@ compile_optee_example() {
   CROSS_COMPILE=aarch64-linux-gnu- \
   PLATFORM=rockchip-rk3399 \
   TA_DEV_KIT_DIR=`pwd`/../../../optee_os/out/arm-plat-rockchip/export-ta_arm64 \
-  all V=0 -j
+  all V=$VERBOSE -j
+
   mkdir -p ${TA_STAGING_DIR}
   cp *.stripped.elf ${TA_STAGING_DIR}
   rm -rf dyn_list
@@ -135,8 +139,9 @@ build_ftpm() {
   -I`pwd`/../../../../../OP-TEE/optee_os \
   all -j
 
-  echo ** fTPM - MSFT **
-  readelf -h ./out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf
+  elf=`find -iname bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf`
+  echo "** fTPM - MSFT **"
+  readelf -h $elf
 
   popd
   popd
@@ -151,7 +156,6 @@ build_optee_os() {
   CROSS_COMPILE=arm-none-linux-gnueabihf- \
   PLATFORM=rockchip \
   PLATFORM_FLAVOR=rk3399 \
-  FEATURE_DETECTION=y \
   CFG_DT=n \
   CFG_EXTERNAL_DTB_OVERLAY=n \
   CFG_ARM64_core=y \
@@ -176,10 +180,11 @@ build_optee_os() {
   TEEC_EXPORT=`pwd`/out/usr \
   EARLY_TA_PATHS="`pwd`/../../MSFT/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
                   `pwd`/out/arm-plat-rockchip/ta/avb/023f8f1a-292a-432b-8fc4-de8471358067.stripped.elf" \
-  all mem_usage V=0 -j
+  all mem_usage V=$VERBOSE -j
 
-  echo "** TEE - out/arm-plat-rockchip/core/tee.elf **"
-  readelf -h ./out/arm-plat-rockchip/core/tee.elf
+  elf=`find -iname tee.elf`
+  echo "** TFA - ${elf} **"
+  readelf -h $elf
 
   popd
 }
@@ -202,13 +207,11 @@ build_atf() {
   MEASURED_BOOT=1 \
   BL32=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf \
   DEBUG=1 \
-  clean all V=0 -j
+  all V=$VERBOSE -j
 
-  #
-  #TRUSTED_BOARD_BOOT=1 \
-
-  echo "** TFA - build/rk3399/debug/bl31/bl31.elf **"
-  readelf -h ./build/rk3399/debug/bl31/bl31.elf
+  elf=`find -iname bl31.elf`
+  echo "** TFA ${elf} **"
+  readelf -h $elf
  
   popd
 }
