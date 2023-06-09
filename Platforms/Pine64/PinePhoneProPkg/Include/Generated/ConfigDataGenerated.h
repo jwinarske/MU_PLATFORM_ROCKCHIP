@@ -11,8 +11,8 @@
 #define CONFIGDATAGENERATED_H
 // The config public header must be included prior to this file
 // Generated Header
-//  Script: /mnt/raid10/rockchip/MU_PLATFORM_ROCKCHIP/Features/CONFIG/SetupDataPkg/Tools/KnobService.py
-//  Schema: /mnt/raid10/rockchip/MU_PLATFORM_ROCKCHIP/Platforms/Pine64/PinePhoneProPkg/CfgData/PinePhoneProPkgCfgData.xml
+//  Script: /home/joel.winarske@toyotaconnected.com/development/MU_PLATFORM_ROCKCHIP/Features/CONFIG/SetupDataPkg/Tools/KnobService.py
+//  Schema: /home/joel.winarske@toyotaconnected.com/development/MU_PLATFORM_ROCKCHIP/Platforms/Pine64/PinePhoneProPkg/CfgData/PinePhoneProPkgCfgData.xml
 
 typedef struct {
   UINT32 DummyKnob1;

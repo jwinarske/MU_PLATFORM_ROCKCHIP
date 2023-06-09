@@ -2,47 +2,11 @@
 
 set -e
 
-rm -rf staging |true
-
-build_levinboot() {
-
-  pushd IPL/levinboot
-
-  git reset --hard 2fbeba71d46929d5e6980911d482e65ad6fb17f1
-  git apply ../0005-Boot-BL31-BL32-BL33-from-RAM.patch
-  cp ../CMakeLists.txt tools
-
-  rm -rf _build |true
-  mkdir _build && pushd _build
-
-  CROSS=aarch64-linux-gnu
-  CC=$CROSS-gcc OBJCOPY=$CROSS-objcopy LD=$CROSS-ld ../configure.py --with-tf-a-headers ../../../Silicon/Arm/TFA/include/export --boards pbp
-  ninja -j$(nproc)
-
-  mkdir tools && pushd tools
-  CC=gcc cmake -GNinja ../../tools -DCMAKE_VERBOSE_MAKEFILE=1
-  ninja -j$(nproc) -v
-  popd
-
-  popd
-  popd
-}
-
-build_levinboot
-
-pushd tools
-./build.sh
-popd
-
-pushd staging
-mkdir tfa
-cd tfa
+pushd staging/tfa
 ../../tools/extractelf.py ../../Silicon/Arm/TFA/build/rk3399/debug/bl31/bl31.elf tfa
 popd
 
-pushd staging
-mkdir optee
-cd optee
+pushd staging/optee
 ../../tools/extractelf.py ../../Silicon/OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf optee
 popd
 

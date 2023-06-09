@@ -7,7 +7,7 @@
 /dts-v1/;
 
 / {
-	description = "FIT Image with ATF/OP-TEE/UEFI";
+	description = "FIT Image with ATF/TEE/UEFI";
 	#address-cells = <1>;
 
 	images {
@@ -111,7 +111,7 @@
 		conf {
 			description = "@BOARDTYPE@";
 			rollback-index = <0x0>;
-			loadables = "atf-1", "atf-2", "atf-3", "atf-4", "optee-1", "optee-2", "uefi";
+			loadables = "atf-1", "atf-2", "atf-3", "atf-4", "tee-1", "tee-2", "uefi";
 			fdt = "fdt";
 			signature {
 				algo = "sha256,rsa2048";

@@ -5,14 +5,30 @@ set -e
 # set to 1 to enable verbose build output
 VERBOSE=0
 
+# For TA SDK 32 flavor
+CROSS_COMPILE_32_HFP=$HOME/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin
+
+# For SoC Cortex-M0
+CROSS_COMPILE_32=$HOME/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi/bin
+
+# UEFI build type: RELEASE_GCC5 or DEBUG_GCC5
 UEFI_BUILD_TYPE=DEBUG_GCC5
 
-BL31=`pwd`/../Silicon/Arm/TFA/build/rk3399/debug/bl31/bl31.elf
-BL32=`pwd`/../Silicon/OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf
+CWD=`pwd`
 
-RKBIN=`pwd`/../Silicon/Rockchip/rkbin
+# OP-TEE repos
+OPTEE_OS_DIR=$CWD/../Silicon/OP-TEE/optee_os
+OPTEE_EXAMPLES_DIR=$CWD/../Silicon/OP-TEE/optee_examples
 
-TA_STAGING_DIR=`pwd`/../staging/ta
+# UEFI Volume Info tool
+UEFI_TOOLS_DIR=$CWD/../MU_BASECORE/BaseTools/Bin/Mu-Basetools_extdep/Linux-x86
+
+BL31=$CWD/../Silicon/Arm/TFA/build/rk3399/debug/bl31/bl31.elf
+BL32=$OPTEE_OS_DIR/out/arm-plat-rockchip/core/tee.elf
+
+RKBIN=$CWD/../Silicon/Rockchip/rkbin
+
+TA_STAGING_DIR=$CWD/../staging/ta
 
 TRUST_INI=RK3399TRUST.ini
 MINIALL_INI=RK3399MINIALL.ini
@@ -27,10 +43,11 @@ SD_IMG_OFFSET_UEFI=$((1024 * 1024 / $SD_BLOCK_SIZE)) # 0x100000
 build_ta_sdk() {
   echo " => Building Trusted App SDK"
 
-  pushd ../Silicon/OP-TEE/optee_os
+  pushd $OPTEE_OS_DIR
   git reset --hard e8abbcfbdf63437a640d5fd87b7e191caab6445e
   rm -rf out |true
 
+  PATH=$PATH:${CROSS_COMPILE_32_HFP} \
   make \
   CROSS_COMPILE=arm-none-linux-gnueabihf- \
   PLATFORM=rockchip \
@@ -52,8 +69,8 @@ build_ta_sdk() {
   CFG_TEE_BENCHMARK=n \
   CFG_ULIBS_SHARED=y \
   NOWERROR=1 \
-  OPTEE_CLIENT_EXPORT=`pwd`/out/usr \
-  TEEC_EXPORT=`pwd`/out/usr \
+  OPTEE_CLIENT_EXPORT=$CWD/out/usr \
+  TEEC_EXPORT=$CWD/out/usr \
   all V=$VERBOSE -j
 
   popd
@@ -64,8 +81,8 @@ compile_optee_example() {
   make \
   CROSS_COMPILE=aarch64-linux-gnu- \
   PLATFORM=rockchip-rk3399 \
-  TA_DEV_KIT_DIR=`pwd`/../../../optee_os/out/arm-plat-rockchip/export-ta_arm64 \
-  all V=$VERBOSE -j
+  TA_DEV_KIT_DIR=$CWD/../../../optee_os/out/arm-plat-rockchip/export-ta_arm64 \
+  V=$VERBOSE -j
 
   mkdir -p ${TA_STAGING_DIR}
   cp *.stripped.elf ${TA_STAGING_DIR}
@@ -75,7 +92,7 @@ compile_optee_example() {
 build_optee_examples() {
   echo " => Building optee_examples (TA)"
 
-  pushd ../Silicon/OP-TEE/optee_examples
+  pushd $OPTEE_EXAMPLES_DIR
   git reset --hard
 
   pushd acipher/ta
@@ -133,13 +150,14 @@ build_ftpm() {
   TA_CPU=cortex-a53 \
   CFG_FTPM_USE_WOLF=y \
   CFG_ARM64_ta_arm64=y \
-  TA_DEV_KIT_DIR=`pwd`/../../../../../OP-TEE/optee_os/out/arm-plat-rockchip/export-ta_arm64 \
-  OPTEE_CLIENT_EXPORT=`pwd`/../../../../../OP-TEE/optee_os/out/usr/ \
-  TEEC_EXPORT=`pwd`/../../../../../OP-TEE/optee_os/out/usr/ \
-  -I`pwd`/../../../../../OP-TEE/optee_os \
+  TA_DEV_KIT_DIR=$OPTEE_OS_DIR/out/arm-plat-rockchip/export-ta_arm64 \
+  OPTEE_CLIENT_EXPORT=$OPTEE_OS_DIR/out/usr/ \
+  TEEC_EXPORT=$OPTEE_OS_DIR/out/usr/ \
+  -I$OPTEE_OS_DIR \
   all -j
 
   elf=`find -iname bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf`
+  cp $elf ${TA_STAGING_DIR}
   echo "** fTPM - MSFT **"
   readelf -h $elf
 
@@ -150,8 +168,9 @@ build_ftpm() {
 build_optee_os() {
   echo " => Building tee-pager_v2.bin"
 
-  pushd ../Silicon/OP-TEE/optee_os
+  pushd $OPTEE_OS_DIR
 
+  PATH=$PATH:${CROSS_COMPILE_32_HFP} \
   make \
   CROSS_COMPILE=arm-none-linux-gnueabihf- \
   PLATFORM=rockchip \
@@ -176,10 +195,10 @@ build_optee_os() {
   CFG_TEE_BENCHMARK=n \
   CFG_ULIBS_SHARED=y \
   NOWERROR=1 \
-  OPTEE_CLIENT_EXPORT=`pwd`/out/usr \
-  TEEC_EXPORT=`pwd`/out/usr \
-  EARLY_TA_PATHS="`pwd`/../../MSFT/ms-tpm-20-ref/Samples/ARM32-FirmwareTPM/optee_ta/out/fTPM/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
-                  `pwd`/out/arm-plat-rockchip/ta/avb/023f8f1a-292a-432b-8fc4-de8471358067.stripped.elf" \
+  OPTEE_CLIENT_EXPORT=out/usr \
+  TEEC_EXPORT=out/usr \
+  EARLY_TA_PATHS="${TA_STAGING_DIR}/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
+                  out/arm-plat-rockchip/ta/avb/023f8f1a-292a-432b-8fc4-de8471358067.stripped.elf" \
   all mem_usage V=$VERBOSE -j
 
   elf=`find -iname tee.elf`
@@ -199,13 +218,14 @@ build_atf() {
 
   rm -rf build |true
 
+  PATH=$PATH:${CROSS_COMPILE_32} \
   make \
   CROSS_COMPILE=aarch64-linux-gnu- \
   PLAT=rk3399 \
   SPD=opteed \
   ERRATA_A53_1530924=1 \
   MEASURED_BOOT=1 \
-  BL32=../../OP-TEE/optee_os/out/arm-plat-rockchip/core/tee.elf \
+  BL32=$OPTEE_OS_DIR/out/arm-plat-rockchip/core/tee.elf \
   DEBUG=1 \
   all V=$VERBOSE -j
 
@@ -240,9 +260,12 @@ build_idblock() {
   cat ${RKBIN}/tools/ddrbin_param.txt |
     sed 's/^uart baudrate=.*$/uart baudrate=115200/' |
     sed 's/^dis_printf_training=.*$/dis_printf_training=1/' \
-      >ddrbin_param.txt
+      > ddrbin_param.txt
+
   # generate ddrbin_param_dump.txt
   ${RKBIN}/tools/ddrbin_tool ./ddrbin_param.txt ${RKBIN}/${DDR}
+ 
+  # dump
   ${RKBIN}/tools/ddrbin_tool -g ./ddrbin_param_dump.txt ${RKBIN}/${DDR}
 
   # Create idblock.bin
@@ -265,21 +288,25 @@ build_fit() {
 
   board_upper=$(echo $board | tr '[:lower:]' '[:upper:]')
 
+  BL33=../Build/${board}Pkg/${UEFI_BUILD_TYPE}/FV/${board_upper}.fd
+
   # extract PT_LOAD regions to individual files
   ./extractelf.py ${BL31} atf
   ./extractelf.py ${BL32} tee
   ls -la *_0x*.bin
 
-  # create board .its from template
+  # UEFI fd volume info
+  PATH=$PATH:${UEFI_TOOLS_DIR} ${UEFI_TOOLS_DIR}/VolInfo ${BL33}
+
+  # create .its from template
   sed "s,@BOARDTYPE@,${type},g" image-sd.its > ${board_upper}_EFI.its
 
-  # create fit
+  # create image
   ${RKBIN}/tools/mkimage -f ${board_upper}_EFI.its -E ${board_upper}_EFI.itb
 
-  BL33=../Build/${board}Pkg/${UEFI_BUILD_TYPE}/FV/${board_upper}.fd
-
-  # write UEFI image
+  # add UEFI to image
   dd if=${BL33} of=${board_upper}_EFI.itb bs=512 seek=$SD_IMG_OFFSET_UEFI
+
   rm -f *_0x*.bin ${board_upper}_EFI.its
 }
 
