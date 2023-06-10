@@ -1,0 +1,70 @@
+## @file
+#
+#  Copyright (c) 2018 Microsoft Corporation. All rights reserved.
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = SdhcDxe
+  FILE_GUID                      = A9945BAB-78C9-43C9-9175-F576CA189870
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SdhcInitialize
+
+[Sources.common]
+  SdhcDxe.c
+
+[Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  Microsoft/MsPkg/MsPkg.dec
+  RkPlatformPkg/RkPlatformPkg.dec
+
+[LibraryClasses]
+  RkIoMuxLib
+  IoLib
+  MemoryAllocationLib
+  PcdLib
+  UefiLib
+  UefiDriverEntryPoint
+
+[Guids]
+
+[Protocols]
+  gEfiSdhcProtocolGuid
+
+[Pcd]
+  gRkPlatformTokenSpaceGuid.PcdSdhc1Base
+  gRkPlatformTokenSpaceGuid.PcdSdhc1CardDetectSignal
+  gRkPlatformTokenSpaceGuid.PcdSdhc1Enable
+  gRkPlatformTokenSpaceGuid.PcdSdhc1WriteProtectSignal
+
+  gRkPlatformTokenSpaceGuid.PcdSdhc2Base
+  gRkPlatformTokenSpaceGuid.PcdSdhc2CardDetectSignal
+  gRkPlatformTokenSpaceGuid.PcdSdhc2Enable
+  gRkPlatformTokenSpaceGuid.PcdSdhc2WriteProtectSignal
+
+  gRkPlatformTokenSpaceGuid.PcdSdhc3Base
+  gRkPlatformTokenSpaceGuid.PcdSdhc3CardDetectSignal
+  gRkPlatformTokenSpaceGuid.PcdSdhc3Enable
+  gRkPlatformTokenSpaceGuid.PcdSdhc3WriteProtectSignal
+
+  gRkPlatformTokenSpaceGuid.PcdSdhc4Base
+  gRkPlatformTokenSpaceGuid.PcdSdhc4CardDetectSignal
+  gRkPlatformTokenSpaceGuid.PcdSdhc4Enable
+  gRkPlatformTokenSpaceGuid.PcdSdhc4WriteProtectSignal
+
+[FixedPcd]
+  gRkPlatformTokenSpaceGuid.PcdGpioBankMemoryRange
+
+[depex]
+  TRUE

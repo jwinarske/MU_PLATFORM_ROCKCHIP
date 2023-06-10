@@ -1,25 +1,23 @@
-# MU_PLATFORM_ROCKCHIP
+# Welcome to [MU_PLATFORM_ROCKCHIP](https://github.com/jwinarske/MU_PLATFORM_ROCKCHIP/)
+
 
 MU Platform (UEFI) for Rockchip
 
 Status
 
-* PinePhoneProPkg is active dev target
-
+* Currently a Work In Progress (WIP)
+* PinePhonePro is active dev target
 * Full stack building with latest ATF,OP-TEE, and MU
-
 * loads and runs from RAM -> custom BL31 -> BL32 -> BL33 using USB boot
-
 * Jumps into UEFI image printing UEFI version
-
 * Current focus area is UEFI
-
 * USB boot not yet tested on Pinebook Pro
-
 * optee_os needs crypto drivers
+* Update TAs to use mbedtls - common and friendly licensing
 
 
 Project Goals
+* Make Rockchip an option for enterprise deployment
 * OSS aarch64 Secure Boot (Measured Boot + fTPM)
 * Linux FDT boot with Secure Boot enabled
   * Red Hat Enterprise Linux (RHEL)
@@ -65,9 +63,9 @@ https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
 ### Build PinePhonePro UEFI
 
     export GCC5_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-
-    stuart_setup -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py
-    stuart_update -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py
-    stuart_build -c Platforms/Pine64/PinePhoneProPkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
+    stuart_setup -c Platforms/Pine64/PinePhonePro/PlatformBuild.py
+    stuart_update -c Platforms/Pine64/PinePhonePro/PlatformBuild.py
+    stuart_build -c Platforms/Pine64/PinePhonePro/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
 
 ### Build Stack
 
@@ -79,6 +77,10 @@ https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
 Press and hold recovery button while plugging in USB to Pine Phone Pro device.  Release button after unit is powered on.  Issue:
 
     ./mkrun.sh
+
+### Serial Console Setup
+
+    115200 8N1
 
 ### JTAG Setup
 

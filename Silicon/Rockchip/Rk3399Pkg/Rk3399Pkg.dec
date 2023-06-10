@@ -1,6 +1,7 @@
 #
-#  Copyright (c) 2014-2017, Linaro Limited. All rights reserved.
-#  Copyright (c) 2017, Rockchip Inc. All rights reserved.
+#  Copyright (c) 2023 Joel Winarske. All rights reserved.
+#  Copyright (c) Microsoft Corporation. All rights reserved.
+#  Copyright (c) 2013-2018, ARM Limited. All rights reserved.
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -12,9 +13,10 @@
 #
 
 [Defines]
-  DEC_SPECIFICATION              = 0x00010019
+  DEC_SPECIFICATION              = 0x0001001A
   PACKAGE_NAME                   = Rk3399Pkg
-  PACKAGE_GUID                   = a42ece54-d895-4fca-a592-1dd4f0f9e63d
+
+  PACKAGE_GUID                   = 4F3BDBA2-496B-64BB-FAB3-199D81AAE5A2
   PACKAGE_VERSION                = 0.1
 
 ################################################################################
@@ -29,67 +31,41 @@
 [Includes.common]
   Include                        # Root include for the package
 
+[Protocols.common]
+  gEfiSdhcProtocolGuid = { 0x46055b0f, 0x992a, 0x4ad7, { 0x8f, 0x81, 0x14, 0x81, 0x86, 0xff, 0xdf, 0x72 } }
+
 [Guids.common]
-  gRk3399PkgTokenSpaceGuid   = { 0xa0a4631b, 0xaba4, 0x4e73, { 0x90, 0x48, 0xae, 0x63, 0x84, 0xd6, 0x51, 0xd4 } }
-  gDwEmmcDxeTokenSpaceGuid   = { 0x6fdd76a9, 0xf220, 0x4f1d,  { 0x9c, 0xcf, 0xbc, 0x2d, 0x68, 0x29, 0xab, 0x9c }}
+  gRk3399TokenSpaceGuid = { 0x4F3BDBA2, 0x496B, 0x64BB, { 0xFA, 0xB3, 0x19, 0x9D, 0x81, 0xAA, 0xE5, 0xA2 } }
+  gRk3399PlatformTokenSpaceGuid = { 0x24b09abe, 0x4e47, 0x481c, { 0xa9, 0xad, 0xce, 0xf1, 0x2c, 0x39, 0x23, 0x27} }
+
+[PcdsFeatureFlag.common]
+  gRk3399TokenSpaceGuid.PcdPciMaxPayloadFixup|FALSE|BOOLEAN|0x00000013
 
 [PcdsFixedAtBuild.common]
-  gRk3399PkgTokenSpaceGuid.PcdFdtBaseAddress|0x00B00000|UINT64|0x00000001
-  gRk3399PkgTokenSpaceGuid.PcdFdtSize|0x10000|UINT32|0x00000002
-  gRk3399PkgTokenSpaceGuid.PcdTfaBaseAddress|0x00000000|UINT64|0x00000003
-  gRk3399PkgTokenSpaceGuid.PcdTfaSize|0x00A00000|UINT32|0x00000004
-  gRk3399PkgTokenSpaceGuid.PcdOpteeBaseAddress|0x08400000|UINT64|0x00000005
-  gRk3399PkgTokenSpaceGuid.PcdOpteeSize|0x01000000|UINT32|0x00000006
-  gRk3399PkgTokenSpaceGuid.PcdReservedBaseAddress|0xF0000000|UINT64|0x00000007
-  gRk3399PkgTokenSpaceGuid.PcdReservedSize|0x10000000|UINT64|0x00000008
-  gRk3399PkgTokenSpaceGuid.PcdCpuSpeed|0x0|UINT32|0x00000009
-  gRk3399PkgTokenSpaceGuid.PcdPlatformName|"Unknown"|VOID*|0x00000010
-  gRk3399PkgTokenSpaceGuid.PcdCpuName|"Unknown"|VOID*|0x00000011
-  gRk3399PkgTokenSpaceGuid.PcdPlatformVendorName|"Unknown"|VOID*|0x00000012
-  gRk3399PkgTokenSpaceGuid.PcdProductUrl|"Unknown"|VOID*|0x00000013
-  gRk3399PkgTokenSpaceGuid.PcdMemoryVendorName|"Unknown"|VOID*|0x00000014
-  gRk3399PkgTokenSpaceGuid.PcdFamilyName|"Unknown"|VOID*|0x00000015
+  gRk3399TokenSpaceGuid.PcdPcieControlBaseAddress|0x33800000|UINT64|0x0000000B
+  gRk3399TokenSpaceGuid.PcdPcieRootPortBaseAddress|0x18000000|UINT64|0x0000000C
+  gRk3399TokenSpaceGuid.PcdPciConfigurationSpaceBaseAddress|0x40000000|UINT64|0x00000011
+  gRk3399TokenSpaceGuid.PcdPciConfigurationSpaceSize|0x10000000|UINT64|0x00000012
 
+  #
+  gRk3399TokenSpaceGuid.PcdUsb1XhciBaseAddress|0x38100000|UINT64|0x00000004
+  gRk3399TokenSpaceGuid.PcdUsb2XhciBaseAddress|0x38200000|UINT64|0x00000005
+
+  # MaxMode must be one number higher than the actual max mode,
+  # i.e. for actual maximum mode 2, set the value to 3.
+  #
+  # Default value zero allows platform to enumerate maximum supported mode.
+  #
+  # For a list of mode numbers look in HdLcdRk3399.c
+  gRk3399TokenSpaceGuid.PcdArmHdLcdMaxMode|0|UINT32|0x00000017
+
+  # {89464DAE-8DAA-41FE-A4C8-40D2175AF1E9}
+  gRk3399TokenSpaceGuid.PcdGraphicsGuid|{0xAE, 0x4D, 0x46, 0x89, 0xAA, 0x8D, 0xFE, 0x41, 0xa4, 0xc8, 0x40, 0xd2, 0x17, 0x5a, 0xf1, 0xe9}|VOID*|0x00000018
+  
+  # Added
   gRk3399PkgTokenSpaceGuid.PcdFirmwareBlockSize|0x0|UINT32|0x00000029
-  gRk3399PkgTokenSpaceGuid.PcdGicGsivId|0x0|UINT32|0x00000030
-  gRk3399PkgTokenSpaceGuid.PcdGicPmuIrq0|0x0|UINT32|0x00000031
-  gRk3399PkgTokenSpaceGuid.PcdGicPmuIrq1|0x0|UINT32|0x00000032
-  gRk3399PkgTokenSpaceGuid.PcdGicPmuIrq2|0x0|UINT32|0x00000033
-  gRk3399PkgTokenSpaceGuid.PcdGicPmuIrq3|0x0|UINT32|0x00000034
-
-  gRk3399PkgTokenSpaceGuid.PcdRkMtlMailBoxBase|0x0010f000|UINT64|0x00001000
-  gRk3399PkgTokenSpaceGuid.PcdRkMtlMailBoxSize|0x100|UINT32|0x00001001
-  gRk3399PkgTokenSpaceGuid.PcdRkMtlMailBoxSmcId|0x82000010|UINT32|0x00001002
-
-  # RK3399 Registers Base Address
-  gRk3399PkgTokenSpaceGuid.PcdGrfRegisterBase|0xFF770000|UINT32|0x00001003
-
-  # RK3399 UART
-  gRk3399PkgTokenSpaceGuid.UartClkInHz|24000000|UINT32|0x00001011
-  gRk3399PkgTokenSpaceGuid.UartInteger|0|UINT32|0x00001012
-  gRk3399PkgTokenSpaceGuid.UartFractional|0|UINT32|0x00001013
-
-  # Storage Offsets
+  gRk3399PkgTokenSpaceGuid.PcdNvStorageVariableBase|0x0|UINT32|0x00002002
   gRk3399PkgTokenSpaceGuid.PcdNvStorageEventLogBase|0x0|UINT32|0x00002000
   gRk3399PkgTokenSpaceGuid.PcdNvStorageEventLogSize|0x0|UINT32|0x00002001
-  gRk3399PkgTokenSpaceGuid.PcdNvStorageVariableBase|0x0|UINT32|0x00002002
-  gRk3399PkgTokenSpaceGuid.PcdNvStorageFtwSpareBase|0x0|UINT32|0x00002003
   gRk3399PkgTokenSpaceGuid.PcdNvStorageFtwWorkingBase|0x0|UINT32|0x00002004
-  gRk3399PkgTokenSpaceGuid.PcdFdStorageOffset|0x00100000|UINT32|0x00002010
-
-  # FAN Control
-  gRk3399PkgTokenSpaceGuid.PcdFanGpioBank|0xFF|UINT8|0x00003001
-  gRk3399PkgTokenSpaceGuid.PcdFanGpioPin|0xFF|UINT8|0x00003002
-  gRk3399PkgTokenSpaceGuid.PcdFanGpioActiveHigh|TRUE|BOOLEAN|0x00003003
- 
-  # DwEmmc Driver PCDs
-  gDwEmmcDxeTokenSpaceGuid.PcdDwEmmcDxeBaseAddress|0x0|UINT32|0x00000001
-  gDwEmmcDxeTokenSpaceGuid.PcdDwEmmcDxeClockFrequencyInHz|0x0|UINT32|0x00000002
-
-[PcdsFixedAtBuild, PcdsPatchableInModule, PcdsDynamic, PcdsDynamicEx]
-  gRk3399PkgTokenSpaceGuid.PcdPlatformResetDelay|0|UINT32|0x00004000
-  gRk3399PkgTokenSpaceGuid.PcdSystemTableMode|0|UINT32|0x00004001
-  gRk3399PkgTokenSpaceGuid.PcdCpuClock|2|UINT32|0x00004002
-  gRk3399PkgTokenSpaceGuid.PcdCustomCpuClock|816|UINT32|0x00004003
-  gRk3399PkgTokenSpaceGuid.PcdMultiPhy1Mode|0|UINT32|0x00004004
-  gRk3399PkgTokenSpaceGuid.PcdFanMode|FALSE|BOOLEAN|0x00040005
+  gRk3399PkgTokenSpaceGuid.PcdNvStorageFtwSpareBase|0x0|UINT32|0x00002003

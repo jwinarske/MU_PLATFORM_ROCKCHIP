@@ -19,6 +19,14 @@ CWD=`pwd`
 # OP-TEE repos
 OPTEE_OS_DIR=$CWD/../Silicon/OP-TEE/optee_os
 OPTEE_EXAMPLES_DIR=$CWD/../Silicon/OP-TEE/optee_examples
+TA_DEV_KIT_DIR=$OPTEE_OS_DIR/out/arm-plat-rockchip/export-ta_arm64
+
+# 0-4
+TEE_CORE_LOG_LEVEL=4
+# 0-4
+TEE_TA_LOG_LEVEL=4
+# options are y|n
+TA_DEBUG=y
 
 # UEFI Volume Info tool
 UEFI_TOOLS_DIR=$CWD/../MU_BASECORE/BaseTools/Bin/Mu-Basetools_extdep/Linux-x86
@@ -63,8 +71,9 @@ build_ta_sdk() {
   CFG_RPMB_TESTKEY=y \
   CFG_REE_FS=n \
   CFG_CORE_ARM64_PA_BITS=48 \
-  CFG_TEE_CORE_LOG_LEVEL=4 \
-  CFG_TEE_TA_LOG_LEVEL=4 \
+  CFG_TEE_CORE_LOG_LEVEL=${TEE_CORE_LOG_LEVEL} \
+  CFG_TEE_TA_LOG_LEVEL=${TEE_TA_LOG_LEVEL} \
+  CFG_TA_DEBUG=${TEE_DEBUG} \
   CFG_SCTLR_ALIGNMENT_CHECK=n \
   CFG_TEE_BENCHMARK=n \
   CFG_ULIBS_SHARED=y \
@@ -76,12 +85,14 @@ build_ta_sdk() {
   popd
 }
 
-compile_optee_example() {
+compile_optee_ta() {
   rm -rf dyn_list |true 
   make \
   CROSS_COMPILE=aarch64-linux-gnu- \
   PLATFORM=rockchip-rk3399 \
-  TA_DEV_KIT_DIR=$CWD/../../../optee_os/out/arm-plat-rockchip/export-ta_arm64 \
+  CFG_TEE_TA_LOG_LEVEL=${TEE_TA_LOG_LEVEL} \
+  CFG_TA_DEBUG=${TEE_DEBUG} \
+  TA_DEV_KIT_DIR=${TA_DEV_KIT_DIR} \
   V=$VERBOSE -j
 
   mkdir -p ${TA_STAGING_DIR}
@@ -96,35 +107,35 @@ build_optee_examples() {
   git reset --hard
 
   pushd acipher/ta
-  compile_optee_example
+  compile_optee_ta
   popd
 
   pushd aes/ta
-  compile_optee_example
+  compile_optee_ta
   popd
 
   pushd hello_world/ta
-  compile_optee_example
+  compile_optee_ta
   popd
 
   pushd secure_storage/ta
-  compile_optee_example
+  compile_optee_ta
   popd
 
   pushd hotp/ta
-  compile_optee_example
+  compile_optee_ta
   popd
 
   pushd plugins/ta
-  compile_optee_example
+  compile_optee_ta
   popd
 
   pushd random/ta
-  compile_optee_example
+  compile_optee_ta
   popd
 
   pushd secure_storage/ta
-  compile_optee_example
+  compile_optee_ta
   popd
 
   find -iname *.stripped.elf
@@ -132,7 +143,7 @@ build_optee_examples() {
   popd
 }
 
-build_ftpm() {
+build_ftpm_ta() {
   echo " => Building fTPM (TA)"
 
   pushd ../Silicon/MSFT/ms-tpm-20-ref/
@@ -150,10 +161,12 @@ build_ftpm() {
   TA_CPU=cortex-a53 \
   CFG_FTPM_USE_WOLF=y \
   CFG_ARM64_ta_arm64=y \
-  TA_DEV_KIT_DIR=$OPTEE_OS_DIR/out/arm-plat-rockchip/export-ta_arm64 \
+  TA_DEV_KIT_DIR=${TA_DEV_KIT_DIR} \
   OPTEE_CLIENT_EXPORT=$OPTEE_OS_DIR/out/usr/ \
   TEEC_EXPORT=$OPTEE_OS_DIR/out/usr/ \
   -I$OPTEE_OS_DIR \
+  CFG_TEE_TA_LOG_LEVEL=${TEE_TA_LOG_LEVEL} \
+  CFG_TA_DEBUG=${TEE_DEBUG} \
   all -j
 
   elf=`find -iname bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf`
@@ -162,6 +175,36 @@ build_ftpm() {
   readelf -h $elf
 
   popd
+  popd
+}
+
+build_authvars_ta() {
+
+  pushd ../Silicon/MSFT/MSRSec/TAs/optee_ta/AuthVars
+  #git submodule update --init --recursive
+  #git reset --hard
+
+  rm -rf out |true
+  
+  make \
+  TA_CROSS_COMPILE=aarch64-linux-gnu- \
+  TA_CPU=cortex-a53 \
+  CFG_AUTHVARS_USE_WOLF=y \
+  CFG_ARM64_ta_arm64=y \
+  TA_DEV_KIT_DIR=${TA_DEV_KIT_DIR} \
+  OPTEE_CLIENT_EXPORT=$OPTEE_OS_DIR/out/usr/ \
+  TEEC_EXPORT=$OPTEE_OS_DIR/out/usr/ \
+  -I$OPTEE_OS_DIR \
+  CFG_TEE_TA_LOG_LEVEL=${TEE_TA_LOG_LEVEL} \
+  CFG_TA_DEBUG=${TEE_DEBUG} \
+  all -j
+ 
+  elf=`find -iname 2d57c0f7-bddf-48ea-832f-d84a1a219301.stripped.elf`
+  cp $elf ${TA_STAGING_DIR}
+  echo "** AuthVars - MSFT **"
+  readelf -h $elf
+
+  false
   popd
 }
 
@@ -187,11 +230,11 @@ build_optee_os() {
   CFG_RPMB_WRITE_KEY=y \
   CFG_RPMB_TESTKEY=y \
   CFG_REE_FS=n \
-  CFG_TEE_CORE_LOG_LEVEL=4 \
-  CFG_TEE_TA_LOG_LEVEL=4 \
+  CFG_TEE_CORE_LOG_LEVEL=${TEE_CORE_LOG_LEVEL} \
+  CFG_TEE_TA_LOG_LEVEL=${TEE_TA_LOG_LEVEL} \
   CFG_TA_MEASURED_BOOT=y \
   CFG_TA_EVENT_LOG_SIZE=2048 \
-  CFG_TA_DEBUG=1 \
+  CFG_TA_DEBUG=${TEE_DEBUG} \
   CFG_TEE_BENCHMARK=n \
   CFG_ULIBS_SHARED=y \
   NOWERROR=1 \
@@ -244,9 +287,9 @@ build_uefi() {
 
   export GCC5_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-
   export PYTOOL_TEMPORARILY_IGNORE_NESTED_EDK_PACKAGES=true
-  stuart_setup -c Platforms/Pine64/${board}Pkg/PlatformBuild.py
-  stuart_update -c Platforms/Pine64/${board}Pkg/PlatformBuild.py
-  stuart_build -c Platforms/Pine64/${board}Pkg/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
+  stuart_setup -c Platforms/Pine64/${board}/PlatformBuild.py
+  stuart_update -c Platforms/Pine64/${board}/PlatformBuild.py
+  stuart_build -c Platforms/Pine64/${board}/PlatformBuild.py TOOL_CHAIN_TAG=GCC5
 
   popd
 }
@@ -288,7 +331,7 @@ build_fit() {
 
   board_upper=$(echo $board | tr '[:lower:]' '[:upper:]')
 
-  BL33=../Build/${board}Pkg/${UEFI_BUILD_TYPE}/FV/${board_upper}.fd
+  BL33=../Build/${board}/${UEFI_BUILD_TYPE}/FV/${board_upper}.fd
 
   # extract PT_LOAD regions to individual files
   ./extractelf.py ${BL31} atf
@@ -312,7 +355,7 @@ build_fit() {
 
 make_image_sd() {
 
-  build_uefi $1
+  build_uefi.sh $1
   build_fit $1 $2 $3
   build_idblock
 
@@ -337,8 +380,10 @@ make_image_sd() {
 }
 
 build_ta_sdk
+build_ftpm_ta
+#build_authvars_ta
 build_optee_examples
-build_ftpm
+
 build_optee_os
 build_atf
 

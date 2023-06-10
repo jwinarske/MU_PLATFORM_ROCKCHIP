@@ -5,8 +5,8 @@ Conf
 Build
 __pycache__
 Platforms/*/__pycache__
-Platforms/Pine64/PinebookProPkg/Include/*
-Platforms/Pine64/PinePhoneProPkg/Include/*
+Platforms/Pine64/PinebookPro/Include/*
+Platforms/Pine64/PinePhonePro/Include/*
 
 staging
 

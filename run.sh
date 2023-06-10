@@ -20,7 +20,7 @@ sudo IPL/levinboot/_build/tools/usbtool \
   --load ff8c2000 staging/tfa/tfa_0xff8c2000.bin \
   --load 30000000 staging/optee/optee_0x30000000.bin \
   --load 30200000 staging/optee/optee_0x30200000.bin \
-  --load   A00000 Build/PinePhoneProPkg/DEBUG_GCC5/FV/PINEPHONEPRO.fd \
+  --load   A00000 Build/PinePhonePro/DEBUG_GCC5/FV/PINEPHONEPRO.fd \
   --load   B00000 dtb/rk3399-pinephone-pro.dtb \
   --load  4000000 IPL/levinboot/_build/dramstage.bin \
   --start 4000000 4102000
