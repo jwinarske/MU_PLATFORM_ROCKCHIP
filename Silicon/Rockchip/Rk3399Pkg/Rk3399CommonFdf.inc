@@ -88,7 +88,7 @@
   #
   # UEFI applications
   #
-  INF ShellPkg/Application/Shell/Shell.inf
+#  INF ShellPkg/Application/Shell/Shell.inf
 
   #
   # RK3399 platform driver
@@ -184,7 +184,11 @@ READ_STATUS        = TRUE
 READ_LOCK_CAP      = TRUE
 READ_LOCK_STATUS   = TRUE
 
+!if CONFIG_MPCORE == TRUE
+  INF ArmPlatformPkg/PrePi/PeiMpCore.inf
+!else
   INF ArmPlatformPkg/PrePi/PeiUniCore.inf
+!endif
 
   FILE FV_IMAGE = 9E21FD93-9C72-4c15-8C4B-E77F1DB2D792 {
     SECTION GUIDED EE4E5898-3914-4259-9D6E-DC7BD79403CF PROCESSING_REQUIRED = TRUE {

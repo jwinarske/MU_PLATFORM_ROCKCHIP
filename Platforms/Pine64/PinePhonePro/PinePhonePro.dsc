@@ -18,9 +18,6 @@
 #
 ################################################################################
 [Defines]
-  DEFINE ROCKCHIP_FAMILY         = RK3399
-  DEFINE BOARD_NAME              = PINE_PHONE_PRO
-
   PLATFORM_NAME                  = PinePhonePro
   PLATFORM_GUID                  = 1076b222-be41-48ff-9438-3669d47aedb7
   PLATFORM_VERSION               = 0.1
@@ -30,21 +27,40 @@
   BUILD_TARGETS                  = DEBUG|RELEASE
   SKUID_IDENTIFIER               = DEFAULT
   FLASH_DEFINITION               = $(PLATFORM_NAME).fdf
+
   BOARD_DIR                      = Platforms/Pine64/$(PLATFORM_NAME)
+  ROCKCHIP_FAMILY                = RK3399
+  BOARD_NAME                     = PINE_PHONE_PRO
+  FIRMWARE_VER                   = $(PLATFORM_VERSION)
+
+  # FD_SIZE = (FD_BLOCK_SIZE * FD_NUM_BLOCKS)
+  FD_BASE_ADDRESS                = 0x00A00000
+  FD_BLOCK_SIZE                  = 0x00000200
+  FD_NUM_BLOCKS                  = 0x00001000 # 0x00002000
+  FD_SIZE                        = 0x00200000 # 0x00400000
 
 
-  CONFIG_HEADLESS                = FALSE
+  # TODO partition into A/B layout
+
   CONFIG_FRONTPAGE               = TRUE
+  CONFIG_HEADLESS                = FALSE
+  CONFIG_INCLUDE_SHELL           = TRUE
+  CONFIG_INCLUDE_TFTP_COMMAND    = TRUE
 
   CONFIG_MPCORE                  = TRUE
   CONFIG_USB                     = TRUE
   CONFIG_PCIE                    = TRUE
 
   CONFIG_OPTEE                   = TRUE
-  CONFIG_OPTEE_PROFILE           = TRUE
-  CONFIG_AUTH_VAR                = TRUE
-  CONFIG_SECURE_BOOT             = TRUE
+  CONFIG_OPTEE_PROFILE           = FALSE
+  CONFIG_AUTH_VAR                = FALSE
+  CONFIG_SECURE_BOOT             = FALSE
   CONFIG_MEASURED_BOOT           = FALSE
+
+  CONFIG_EDK_TESTS               = TRUE
+
+  # factor out once AuthStore is implemented
+  CONFIG_VOLATILE_VARSTORE       = FALSE
 
   CONFIG_DUMP_SYMBOL_INFO        = TRUE
 
@@ -68,23 +84,18 @@
 [LibraryClasses.common]
   ArmPlatformLib|$(BOARD_DIR)/Library/Rk3399BoardLib/Rk3399BoardLib.inf
   
-# TODO - added for build break
+# TODO - added for build break need to move
   RegisterFilterLib|MdePkg/Library/RegisterFilterLibNull/RegisterFilterLibNull.inf
   DxeMemoryProtectionHobLib|MdeModulePkg/Library/MemoryProtectionHobLibNull/DxeMemoryProtectionHobLibNull.inf
   MemoryBinOverrideLib|MdeModulePkg/Library/MemoryBinOverrideLibNull/MemoryBinOverrideLibNull.inf
   VariablePolicyHelperLib|MdeModulePkg/Library/VariablePolicyHelperLib/VariablePolicyHelperLib.inf
   MemoryTypeInformationChangeLib|MdeModulePkg/Library/MemoryTypeInformationChangeLibNull/MemoryTypeInformationChangeLibNull.inf
-  VariableFlashInfoLib|MdeModulePkg/Library/BaseVariableFlashInfoLib/BaseVariableFlashInfoLib.inf
-  
+  VariableFlashInfoLib|MdeModulePkg/Library/BaseVariableFlashInfoLib/BaseVariableFlashInfoLib.inf 
   MuTelemetryHelperLib|MsWheaPkg/Library/MuTelemetryHelperLib/MuTelemetryHelperLib.inf
-
   UpdateFacsHardwareSignatureLib|Pine64Pkg/Library/UpdateFacsHardwareSignatureLib/UpdateFacsHardwareSignatureLib.inf
   FrameBufferMemDrawLib|MsGraphicsPkg/Library/FrameBufferMemDrawLib/FrameBufferMemDrawLib.inf
-  #FrameBufferMemDrawLib|MsGraphicsPkg/Library/FrameBufferMemDrawLibNull/FrameBufferMemDrawLibNull.inf
   FrameBufferBltLib|MdeModulePkg/Library/FrameBufferBltLib/FrameBufferBltLib.inf
-
-#  MsPlatformDevicesLib|Silicon/Rockchip/Rk3399Pkg/Library/MsPlatformDevicesLib/MsPlatformDevicesLib.inf
-
+  MsPlatformDevicesLib|Silicon/Rockchip/Rk3399Pkg/Library/MsPlatformDevicesLib/MsPlatformDevicesLib.inf
   OrderedCollectionLib|MdePkg/Library/BaseOrderedCollectionRedBlackTreeLib/BaseOrderedCollectionRedBlackTreeLib.inf
   MemoryTypeInfoSecVarCheckLib|MdeModulePkg/Library/MemoryTypeInfoSecVarCheckLib/MemoryTypeInfoSecVarCheckLib.inf
   PasswordPolicyLib|Pine64Pkg/Library/PasswordPolicyLibNull/PasswordPolicyLibNull.inf
@@ -93,13 +104,8 @@
   SecureBootKeyStoreLib|Pine64Pkg/Library/SecureBootKeyStoreLibOem/SecureBootKeyStoreLibOem.inf
   PlatformPKProtectionLib|SecurityPkg/Library/PlatformPKProtectionLibVarPolicy/PlatformPKProtectionLibVarPolicy.inf
   DfciSettingChangedNotificationLib|DfciPkg/Library/DfciSettingChangedNotificationLib/DfciSettingChangedNotificationLibNull.inf
-
-  # option
+  SafeIntLib|MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf      
   RngLib|MdePkg/Library/BaseRngLib/BaseRngLib.inf
-
-  # DtClient
-#  DtPlatformDtbLoaderLib|EmbeddedPkg/Library/DxeDtPlatformDtbLoaderLibDefault/DxeDtPlatformDtbLoaderLibDefault.inf
-#  AndroidBootImgLib|EmbeddedPkg/Library/AndroidBootImgLib/AndroidBootImgLib.inf
 
 
 [LibraryClasses.common.DXE_RUNTIME_DRIVER]
@@ -112,6 +118,7 @@
   PcdDatabaseLoaderLib|MdeModulePkg/Library/PcdDatabaseLoaderLib/Dxe/PcdDatabaseLoaderLibDxe.inf
 
 [Components.common]
+
   #
   # ACPI Support
   #
@@ -129,6 +136,7 @@
   # Fastboot
   #
   EmbeddedPkg/Application/AndroidFastboot/AndroidFastbootApp.inf
+  EmbeddedPkg/Drivers/AndroidFastbootTransportUsbDxe/FastbootTransportUsbDxe.inf
 
 #  EmbeddedPkg/Drivers/FdtClientDxe/FdtClientDxe.inf
 #  EmbeddedPkg/Drivers/DtPlatformDxe/DtPlatformDxe.inf
@@ -153,27 +161,12 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareRevision|0x00000001
 
   # System memory size (4GB)
-  # Limit to 3GB of DRAM at the top of the 32bit address space
-!if $(CONFIG_OPTEE) == TRUE
-  # OpTEE is loaded at top of memory by Arm-TF. Reduce memory size to avoid collision.
-  gArmTokenSpaceGuid.PcdSystemMemorySize|0xBE000000
-!else
+#  gArmTokenSpaceGuid.PcdSystemMemoryBase|0x0
   gArmTokenSpaceGuid.PcdSystemMemorySize|0xC0000000
-!endif
+#  gArmTokenSpaceGuid.PcdSystemMemorySize|0x40000000000
 
-  #
-  # NV Storage PCDs. Use base of 0x30370000 for SNVS?
-  #
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase|0x30370000
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize|0x00004000
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase|0x30374000
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize|0x00004000
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase|0x30378000
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize|0x00004000
-
-  # RK3399
-  gArmPlatformTokenSpaceGuid.PcdCoreCount|8
-  gArmPlatformTokenSpaceGuid.PcdClusterCount|2
+  gArmPlatformTokenSpaceGuid.PcdCoreCount|4
+  gArmPlatformTokenSpaceGuid.PcdClusterCount|1
 
   gArmTokenSpaceGuid.PcdVFPEnabled|1
 
@@ -182,9 +175,22 @@
   #
 
   ## RkPlatformPkg - Serial Terminal
-  gRkPlatformTokenSpaceGuid.PcdSerialRegisterBase|0x30860000
 
-  ## RkPlatformPackage - Debug UART instance UART1 0x30860000
+  # UART2
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase|0xFF1A0000
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialUseMmio|TRUE
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialUseHardwareFlowControl|FALSE
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialClockRate|24000000
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterStride|4
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterAccessWidth|32
+
+  gRkPlatformTokenSpaceGuid.PcdSerialRegisterBase|0xFF1A0000
+  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate|115200
+  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultDataBits|8
+  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultParity|1
+  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultStopBits|1
+
+  ## RkPlatformPackage - Debug UART instance UART1
   gRkPlatformTokenSpaceGuid.PcdKdUartInstance|1
 
   # uSDHCx | RK3399 Pine Phone Pro Connections

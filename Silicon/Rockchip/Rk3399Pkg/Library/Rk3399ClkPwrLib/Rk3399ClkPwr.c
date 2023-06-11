@@ -137,6 +137,7 @@ RkUngateActiveClock (
   VOID
   )
 {
+  #if 0
   UINT32 index;
 
   // TODO: determine correct clock domain settings
@@ -159,6 +160,7 @@ RkUngateActiveClock (
     DEBUG ((EFI_D_INFO, "value after ungating %08x\n",
       MmioRead32 (IMX_CCM_CCGR(RkActiveClock[index]))));
   }
+  #endif
 }
 
 VOID

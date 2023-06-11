@@ -34,12 +34,13 @@
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
   Silicon/Rockchip/Rk3399Pkg/Rk3399Pkg.dec
+  Silicon/Rockchip/RkPlatformPkg/RkPlatformPkg.dec
 
 [Pcd]
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialBaudRate
 
-  gRk3399PkgTokenSpaceGuid.PcdGrfRegisterBase
-  gRk3399PkgTokenSpaceGuid.UartClkInHz
-  gRk3399PkgTokenSpaceGuid.UartInteger
-  gRk3399PkgTokenSpaceGuid.UartFractional
+  gRk3399TokenSpaceGuid.PcdGrfRegisterBase
+  gRk3399TokenSpaceGuid.UartClkInHz
+  gRk3399TokenSpaceGuid.UartInteger
+  gRk3399TokenSpaceGuid.UartFractional
 

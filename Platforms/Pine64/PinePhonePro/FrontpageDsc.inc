@@ -191,9 +191,9 @@
   gMsGraphicsPkgTokenSpaceGuid.PcdUiThemeInDxe|TRUE
   gEfiMdeModulePkgTokenSpaceGuid.PcdBootManagerInBootOrder|TRUE
 #TODO  gEfiMdeModulePkgTokenSpaceGuid.PcdPlatformRecoverySupported|FALSE
-  # The GUID of Frontpage.inf from MU_OEM_SAMPLE
-  # 4042708A-0F2D-4823-AC60-0D77B3111889
-  gEfiMdeModulePkgTokenSpaceGuid.PcdBootManagerMenuFile|{ 0x8A, 0x70, 0x42, 0x40, 0x2D, 0x0F, 0x23, 0x48, 0xAC, 0x60, 0x0D, 0x77, 0xB3, 0x11, 0x18, 0x89 }
+  # The GUID of Frontpage.inf from Pine64Pkg
+  # b01d8615-fbdb-45f8-bb5a-c9d69dc0e79e
+  gEfiMdeModulePkgTokenSpaceGuid.PcdBootManagerMenuFile|{ 0x15, 0x86, 0x1d, 0xb0, 0xdb, 0xfd, 0xf8, 0x45, 0xbb, 0x5a, 0xc9, 0xd6, 0x9d, 0xc0, 0xe7, 0x9e }
 
 [Components.AARCH64]
 
@@ -266,11 +266,16 @@
   # Produces FORM DISPLAY ENGINE protocol. Handles input, displays strings.
   #
   MsGraphicsPkg/DisplayEngineDxe/DisplayEngineDxe.inf
-
+  
   
 #######################################
 #  Shell
 #######################################
+!if $(CONFIG_INCLUDE_SHELL) == TRUE
+
+  !if $(CONFIG_INCLUDE_TFTP_COMMAND) == TRUE
+    ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
+  !endif
 
   ShellPkg/Application/Shell/Shell.inf {
     <LibraryClasses>
@@ -282,30 +287,8 @@
       NULL|ShellPkg/Library/UefiShellDebug1CommandsLib/UefiShellDebug1CommandsLib.inf
       NULL|ShellPkg/Library/UefiShellNetwork1CommandsLib/UefiShellNetwork1CommandsLib.inf
       NULL|ShellPkg/Library/UefiShellNetwork2CommandsLib/UefiShellNetwork2CommandsLib.inf
-# added
-      HandleParsingLib|ShellPkg/Library/UefiHandleParsingLib/UefiHandleParsingLib.inf
-      PrintLib|MdePkg/Library/BasePrintLib/BasePrintLib.inf
-      BcfgCommandLib|ShellPkg/Library/UefiShellBcfgCommandLib/UefiShellBcfgCommandLib.inf
-# end
     <PcdsFixedAtBuild>
      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
   }
 
-#  ShellPkg/Application/Shell/Shell.inf {
-#    <LibraryClasses>
-#      ShellCommandLib|ShellPkg/Library/UefiShellCommandLib/UefiShellCommandLib.inf
-#      NULL|ShellPkg/Library/UefiShellLevel2CommandsLib/UefiShellLevel2CommandsLib.inf
-#      NULL|ShellPkg/Library/UefiShellLevel1CommandsLib/UefiShellLevel1CommandsLib.inf
-#      NULL|ShellPkg/Library/UefiShellLevel3CommandsLib/UefiShellLevel3CommandsLib.inf
-#      NULL|ShellPkg/Library/UefiShellDriver1CommandsLib/UefiShellDriver1CommandsLib.inf
-#      NULL|ShellPkg/Library/UefiShellDebug1CommandsLib/UefiShellDebug1CommandsLib.inf
-#      NULL|ShellPkg/Library/UefiShellInstall1CommandsLib/UefiShellInstall1CommandsLib.inf
-##      NULL|ShellPkg/Library/UefiShellNetwork1CommandsLib/UefiShellNetwork1CommandsLib.inf
-#      HandleParsingLib|ShellPkg/Library/UefiHandleParsingLib/UefiHandleParsingLib.inf
-#      PrintLib|MdePkg/Library/BasePrintLib/BasePrintLib.inf
-#      BcfgCommandLib|ShellPkg/Library/UefiShellBcfgCommandLib/UefiShellBcfgCommandLib.inf
-#  }
-
-!if $(INCLUDE_TFTP_COMMAND) == TRUE
-  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
 !endif

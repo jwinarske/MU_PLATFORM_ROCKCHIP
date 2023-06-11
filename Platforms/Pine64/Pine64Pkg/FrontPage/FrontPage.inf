@@ -8,7 +8,7 @@
 [Defines]
   INF_VERSION                    = 0x00010005
   BASE_NAME                      = FrontPage
-  FILE_GUID                      = 4042708A-0F2D-4823-AC60-0D77B3111889
+  FILE_GUID                      = b01d8615-fbdb-45f8-bb5a-c9d69dc0e79e
   MODULE_TYPE                    = UEFI_APPLICATION
   VERSION_STRING                 = 1.0
   ENTRY_POINT                    = UefiMain

@@ -14,11 +14,17 @@
   INF MsGraphicsPkg/OnScreenKeyboardDxe/OnScreenKeyboardDxe.inf
   INF Pine64Pkg/FrontpageButtonsVolumeUp/FrontpageButtonsVolumeUp.inf
   INF MsGraphicsPkg/SimpleWindowManagerDxe/SimpleWindowManagerDxe.inf
-  # Change AARCH64 to the appropriate architecture for your platform.
+
+!if $(CONFIG_INCLUDE_SHELL) == TRUE
+  !if $(CONFIG_INCLUDE_TFTP_COMMAND) == TRUE
+    INF ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
+  !endif
   FILE APPLICATION=PCD(gPcBdsPkgTokenSpaceGuid.PcdShellFile) {
     SECTION PE32=$(OUTPUT_DIRECTORY)/$(TARGET)_$(TOOL_CHAIN_TAG)/AARCH64/Shell.efi
     SECTION UI= "EdkShell"
   }
+!endif
+
   FILE FREEFORM = PCD(gPine64PkgTokenSpaceGuid.PcdLogoFile) {
     SECTION RAW = Pine64Pkg/FrontPage/Resources/BootLogo.bmp
     SECTION UI = "Logo"

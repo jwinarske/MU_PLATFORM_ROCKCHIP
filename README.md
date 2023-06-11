@@ -78,9 +78,14 @@ Press and hold recovery button while plugging in USB to Pine Phone Pro device.  
 
     ./mkrun.sh
 
-### Serial Console Setup
+### Serial Console Cable
 
-    115200 8N1
+    sudo minicom -D /dev/ttyUSB0 -b 115200
+
+Ubuntu requires or console cable will not show up as /dev/ttyUSB0
+    
+    sudo apt remove brltty
+    
 
 ### JTAG Setup
 

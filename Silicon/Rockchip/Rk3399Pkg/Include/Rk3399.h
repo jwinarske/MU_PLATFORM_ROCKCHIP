@@ -1,61 +1,220 @@
-/** @file
-*
-*  Header defining the RK3399 constants (Base addresses, sizes, flags)
-*
-*  Copyright (c) 2023, Joel Winarske. All rights reserved.
-*
-*  This program and the accompanying materials
-*  are licensed and made available under the terms and conditions of the BSD License
-*  which accompanies this distribution.  The full text of the license may be found at
-*  http://opensource.org/licenses/bsd-license.php
-*
-*  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-*
-**/
+/*
+ * Copyright (c) 2023, Joel Winarske. All rights reserved.
+ * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #ifndef __RK3399_H__
 #define __RK3399_H__
 
+
+#define SIZE_K(n)		   ((n) * 1024)
+#define SIZE_M(n)		   ((n) * 1024 * 1024)
+#define BIT(nr)            (ULL(1) << (nr))
+
+
 //
 // Memory mapping
 //
+#define SRAM_TEXT_LIMIT		(4 * 1024)
+#define SRAM_DATA_LIMIT		(4 * 1024)
+#define SRAM_BIN_LIMIT		(4 * 1024)
 
-// TODO: probably need to add references to all other hardware blocks,
-// unlike imx6/7, AARCH64 uses the MMU and if it's not mapped you get an exception
-#if defined(CPU_RK3399)
-#define ARM_PERIPHERALS_REGISTERS_PHYSICAL  0x31000000
-#define ARM_PERIPHERALS_REGISTERS_LENGTH    0x00400000
+/* Registers base address */
+#define MMIO_BASE		    0xF8000000
 
-#define ARM_IP_BUS_REGISTERS_PHYSICAL       0x30000000
-#define ARM_IP_BUS_REGISTERS_LENGTH         0x01000000
+/* Aggregate of all devices in the first GB */
+#define DEV_RNG0_BASE		MMIO_BASE
+#define DEV_RNG0_SIZE		SIZE_M(125)
 
-#define PCIE_REG_REGISTER_PHYSICAL          0x33800000
-#define PCIE_REG_REGISTER_LENGTH            0x00400000
+/*
+ * The parts of the shared defined registers address with AP and M0,
+ * let's note and mark the previous defines like this:
+ */
+#define GIC500_BASE		(MMIO_BASE + 0x06E00000)
+#define UART0_BASE		(MMIO_BASE + 0x07180000)
+#define UART1_BASE		(MMIO_BASE + 0x07190000)
+#define UART2_BASE		(MMIO_BASE + 0x071A0000)
+#define UART3_BASE		(MMIO_BASE + 0x071B0000)
 
-#define ARM_USB_REG_REGISTER_PHYSICAL       0x32E40000
-#define ARM_USB_REG_REGISTER_LENGTH         0x00020000
+#define PMU_BASE		(MMIO_BASE + 0x07310000)
+#define PMUGRF_BASE		(MMIO_BASE + 0x07320000)
+#define SGRF_BASE		(MMIO_BASE + 0x07330000)
+#define PMUSRAM_BASE	(MMIO_BASE + 0x073B0000)
+#define PWM_BASE		(MMIO_BASE + 0x07420000)
 
-#define ARM_GIC_REG_REGISTER_PHYSICAL       0x38800000
-#define ARM_GIC_REG_REGISTER_LENGTH         0x00100000
+#define CIC_BASE		(MMIO_BASE + 0x07620000)
+#define PD_BUS0_BASE	(MMIO_BASE + 0x07650000)
+#define DCF_BASE		(MMIO_BASE + 0x076A0000)
+#define GPIO0_BASE		(MMIO_BASE + 0x07720000)
+#define GPIO1_BASE		(MMIO_BASE + 0x07730000)
+#define PMUCRU_BASE		(MMIO_BASE + 0x07750000)
+#define CRU_BASE		(MMIO_BASE + 0x07760000)
+#define GRF_BASE		(MMIO_BASE + 0x07770000)
+#define GPIO2_BASE		(MMIO_BASE + 0x07780000)
+#define GPIO3_BASE		(MMIO_BASE + 0x07788000)
+#define GPIO4_BASE		(MMIO_BASE + 0x07790000)
+#define WDT1_BASE		(MMIO_BASE + 0x07840000)
+#define WDT0_BASE		(MMIO_BASE + 0x07848000)
+#define TIMER_BASE		(MMIO_BASE + 0x07850000)
+#define STIME_BASE		(MMIO_BASE + 0x07860000)
+#define SRAM_BASE		(MMIO_BASE + 0x078C0000)
+#define SERVICE_NOC_0_BASE	(MMIO_BASE + 0x07A50000)
+#define DDRC0_BASE		(MMIO_BASE + 0x07A80000)
+#define SERVICE_NOC_1_BASE	(MMIO_BASE + 0x07A84000)
+#define DDRC1_BASE		(MMIO_BASE + 0x07A88000)
+#define SERVICE_NOC_2_BASE	(MMIO_BASE + 0x07A8C000)
+#define SERVICE_NOC_3_BASE	(MMIO_BASE + 0x07A90000)
+#define CCI500_BASE		(MMIO_BASE + 0x07B00000)
+#define COLD_BOOT_BASE		(MMIO_BASE + 0x07FF0000)
 
-#else // IMX8MQ
+/* Registers size */
+#define GIC500_SIZE		SIZE_M(2)
+#define UART0_SIZE		SIZE_K(64)
+#define UART1_SIZE		SIZE_K(64)
+#define UART2_SIZE		SIZE_K(64)
+#define UART3_SIZE		SIZE_K(64)
+#define PMU_SIZE		SIZE_K(64)
+#define PMUGRF_SIZE		SIZE_K(64)
+#define SGRF_SIZE		SIZE_K(64)
+#define PMUSRAM_SIZE	SIZE_K(64)
+#define PMUSRAM_RSIZE	SIZE_K(8)
+#define PWM_SIZE		SIZE_K(64)
+#define CIC_SIZE		SIZE_K(4)
+#define DCF_SIZE		SIZE_K(4)
+#define GPIO0_SIZE		SIZE_K(64)
+#define GPIO1_SIZE		SIZE_K(64)
+#define PMUCRU_SIZE		SIZE_K(64)
+#define CRU_SIZE		SIZE_K(64)
+#define GRF_SIZE		SIZE_K(64)
+#define GPIO2_SIZE		SIZE_K(32)
+#define GPIO3_SIZE		SIZE_K(32)
+#define GPIO4_SIZE		SIZE_K(32)
+#define STIME_SIZE		SIZE_K(64)
+#define SRAM_SIZE		SIZE_K(192)
+#define SERVICE_NOC_0_SIZE	SIZE_K(192)
+#define DDRC0_SIZE		SIZE_K(32)
+#define SERVICE_NOC_1_SIZE	SIZE_K(16)
+#define DDRC1_SIZE		SIZE_K(32)
+#define SERVICE_NOC_2_SIZE	SIZE_K(16)
+#define SERVICE_NOC_3_SIZE	SIZE_K(448)
+#define CCI500_SIZE		SIZE_M(1)
+#define PD_BUS0_SIZE		SIZE_K(448)
 
-#define ARM_PERIPHERALS_REGISTERS_PHYSICAL  0x31000000
-#define ARM_PERIPHERALS_REGISTERS_LENGTH    0x00400000
+/* DDR Registers address */
+#define CTL_BASE(ch)		(DDRC0_BASE + (ch) * 0x8000)
+#define CTL_REG(ch, n)		(CTL_BASE(ch) + (n) * 0x4)
 
-#define ARM_IP_BUS_REGISTERS_PHYSICAL       0x30000000
-#define ARM_IP_BUS_REGISTERS_LENGTH         0x01000000
+#define PI_OFFSET		    0x800
+#define PI_BASE(ch)		    (CTL_BASE(ch) + PI_OFFSET)
+#define PI_REG(ch, n)		(PI_BASE(ch) + (n) * 0x4)
 
-#define PCIE_REG_REGISTER_PHYSICAL          0x33800000
-#define PCIE_REG_REGISTER_LENGTH            0x00020000
+#define PHY_OFFSET		    0x2000
+#define PHY_BASE(ch)		(CTL_BASE(ch) + PHY_OFFSET)
+#define PHY_REG(ch, n)		(PHY_BASE(ch) + (n) * 0x4)
 
-#define ARM_USB_REG_REGISTER_PHYSICAL       0x38100000
-#define ARM_USB_REG_REGISTER_LENGTH         0x00200000
+#define MSCH_BASE(ch)		(SERVICE_NOC_1_BASE + (ch) * 0x8000)
 
-#define ARM_GIC_REG_REGISTER_PHYSICAL       0x38800000
-#define ARM_GIC_REG_REGISTER_LENGTH         0x00100000
+/**************************************************
+ * cru reg, offset
+ **************************************************/
+#define CRU_SOFTRST_CON(n)	(0x400 + (n) * 4)
+
+#if 0 //TODO
+#define CRU_DMAC0_RST		BIT_WITH_WMSK(3)
+ /* reset release*/
+#define CRU_DMAC0_RST_RLS	WMSK_BIT(3)
+
+#define CRU_DMAC1_RST		BIT_WITH_WMSK(4)
+ /* reset release*/
+#define CRU_DMAC1_RST_RLS	WMSK_BIT(4)
+#endif //TODO
+
+#define CRU_GLB_RST_CON		0x0510
+#define CRU_GLB_SRST_FST	0x0500
+#define CRU_GLB_SRST_SND	0x0504
+
+#define CRU_CLKGATE_CON(n)	(0x300 + n * 4)
+#define PCLK_GPIO2_GATE_SHIFT	3
+#define PCLK_GPIO3_GATE_SHIFT	4
+#define PCLK_GPIO4_GATE_SHIFT	5
+
+/**************************************************
+ * pmu cru reg, offset
+ **************************************************/
+#define CRU_PMU_RSTHOLD_CON(n)		(0x120 + n * 4)
+/* reset hold*/
+#if 0 //TODO
+#define CRU_PMU_SGRF_RST_HOLD		BIT_WITH_WMSK(6)
+/* reset hold release*/
+#define CRU_PMU_SGRF_RST_RLS		WMSK_BIT(6)
 #endif
+#define CRU_PMU_WDTRST_MSK		    (0x1 << 4)
+#define CRU_PMU_WDTRST_EN		    0x0
+
+#define CRU_PMU_FIRST_SFTRST_MSK	(0x3 << 2)
+#define CRU_PMU_FIRST_SFTRST_EN		0x0
+
+#define CRU_PMU_CLKGATE_CON(n)		(0x100 + n * 4)
+#define PCLK_GPIO0_GATE_SHIFT		3
+#define PCLK_GPIO1_GATE_SHIFT		4
+
+#define CPU_BOOT_ADDR_WMASK	        0xffff0000
+#define CPU_BOOT_ADDR_ALIGN	        16
+
+#define GRF_IOMUX_2BIT_MASK         0x3
+#define GRF_IOMUX_GPIO              0x0
+
+#define GRF_GPIO4C2_IOMUX_SHIFT     4
+#define GRF_GPIO4C2_IOMUX_PWM       0x1
+#define GRF_GPIO4C6_IOMUX_SHIFT     12
+#define GRF_GPIO4C6_IOMUX_PWM       0x1
+
+#define PWM_CNT(n)			(0x0000 + 0x10 * (n))
+#define PWM_PERIOD_HPR(n)	(0x0004 + 0x10 * (n))
+#define PWM_DUTY_LPR(n)		(0x0008 + 0x10 * (n))
+#define PWM_CTRL(n)			(0x000c + 0x10 * (n))
+
+#define PWM_DISABLE			(0 << 0)
+#define PWM_ENABLE			(1 << 0)
+
+/* grf reg offset */
+#define GRF_USBPHY0_CTRL0	0x4480
+#define GRF_USBPHY0_CTRL2	0x4488
+#define GRF_USBPHY0_CTRL3	0x448c
+#define GRF_USBPHY0_CTRL12	0x44b0
+#define GRF_USBPHY0_CTRL13	0x44b4
+#define GRF_USBPHY0_CTRL15	0x44bc
+#define GRF_USBPHY0_CTRL16	0x44c0
+
+#define GRF_USBPHY1_CTRL0	0x4500
+#define GRF_USBPHY1_CTRL2	0x4508
+#define GRF_USBPHY1_CTRL3	0x450c
+#define GRF_USBPHY1_CTRL12	0x4530
+#define GRF_USBPHY1_CTRL13	0x4534
+#define GRF_USBPHY1_CTRL15	0x453c
+#define GRF_USBPHY1_CTRL16	0x4540
+
+#define GRF_GPIO2A_IOMUX	0xe000
+#define GRF_GPIO2A_P		0xe040
+#define GRF_GPIO3A_P		0xe050
+#define GRF_GPIO4A_P		0xe060
+#define GRF_GPIO2D_HE		0xe18c
+#define GRF_DDRC0_CON0		0xe380
+#define GRF_DDRC0_CON1		0xe384
+#define GRF_DDRC1_CON0		0xe388
+#define GRF_DDRC1_CON1		0xe38c
+#define GRF_SOC_CON_BASE	0xe200
+#define GRF_SOC_CON(n)		(GRF_SOC_CON_BASE + (n) * 4)
+#define GRF_IO_VSEL		0xe640
+
+
+
+//////////////////////////////////////////////////////////////
+/////////////////////// START iMX ////////////////////////////
+//////////////////////////////////////////////////////////////
+
 
 //
 // Interrupts
@@ -74,8 +233,6 @@
 #define UART_ADDRESS_SIZE    0x00010000 // 64KB
 
 #define IMX_SERIAL_DBG_PORT_SUBTYPE     0x000C
-
-#define SERIAL_DEBUG_PORT_INIT_MSG "\r\nUEFI Debug Serial Port Init\r\n"
 
 //
 // Clock Source

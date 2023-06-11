@@ -51,6 +51,9 @@
   gArmTokenSpaceGuid.PcdSystemMemorySize
   gArmTokenSpaceGuid.PcdFvBaseAddress
 
+  gArmTokenSpaceGuid.PcdFdBaseAddress
+  gArmTokenSpaceGuid.PcdFdSize
+
   gArmTokenSpaceGuid.PcdArmPrimaryCoreMask
 
   gRk3399TokenSpaceGuid.PcdPcieControlBaseAddress

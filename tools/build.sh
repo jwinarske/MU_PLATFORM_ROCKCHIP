@@ -96,7 +96,7 @@ compile_optee_ta() {
   V=$VERBOSE -j
 
   mkdir -p ${TA_STAGING_DIR}
-  cp *.stripped.elf ${TA_STAGING_DIR}
+  cp *.stripped.elf ${TA_STAGING_DIR}/
   rm -rf dyn_list
 }
 
@@ -170,7 +170,8 @@ build_ftpm_ta() {
   all -j
 
   elf=`find -iname bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf`
-  cp $elf ${TA_STAGING_DIR}
+  mkdir -p ${TA_STAGING_DIR}
+  cp $elf ${TA_STAGING_DIR}/
   echo "** fTPM - MSFT **"
   readelf -h $elf
 
@@ -240,13 +241,14 @@ build_optee_os() {
   NOWERROR=1 \
   OPTEE_CLIENT_EXPORT=out/usr \
   TEEC_EXPORT=out/usr \
-  EARLY_TA_PATHS="${TA_STAGING_DIR}/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf \
-                  out/arm-plat-rockchip/ta/avb/023f8f1a-292a-432b-8fc4-de8471358067.stripped.elf" \
   all mem_usage V=$VERBOSE -j
 
   elf=`find -iname tee.elf`
   echo "** TFA - ${elf} **"
   readelf -h $elf
+
+#  EARLY_TA_PATHS="${TA_STAGING_DIR}/bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf" \
+# out/arm-plat-rockchip/ta/avb/023f8f1a-292a-432b-8fc4-de8471358067.stripped.elf" \
 
   popd
 }
@@ -268,9 +270,11 @@ build_atf() {
   SPD=opteed \
   ERRATA_A53_1530924=1 \
   MEASURED_BOOT=1 \
+  TRUSTED_BOARD_BOOT=1 \
   BL32=$OPTEE_OS_DIR/out/arm-plat-rockchip/core/tee.elf \
+  LOG_LEVEL=40 \
   DEBUG=1 \
-  all V=$VERBOSE -j
+  bl31 V=$VERBOSE -j
 
   elf=`find -iname bl31.elf`
   echo "** TFA ${elf} **"
@@ -355,7 +359,7 @@ build_fit() {
 
 make_image_sd() {
 
-  build_uefi.sh $1
+  build_uefi $1
   build_fit $1 $2 $3
   build_idblock
 
@@ -398,5 +402,5 @@ test -r ${BL31} || (
   false
 )
 
-make_image_sd PinebookPro rk3399-pinebook-pro
+#make_image_sd PinebookPro rk3399-pinebook-pro
 make_image_sd PinePhonePro rk3399-pinephone-pro

@@ -32,7 +32,7 @@ BaseAddress   = 0x00A00000|gArmTokenSpaceGuid.PcdFdBaseAddress
 Size          = 0x00100000|gArmTokenSpaceGuid.PcdFdSize
 ErasePolarity = 1
 
-BlockSize     = 0x00001000|gRk3399PkgTokenSpaceGuid.PcdFirmwareBlockSize
+BlockSize     = 0x00001000|gRk3399TokenSpaceGuid.PcdFirmwareBlockSize
 NumBlocks     = 0x100
 
 ################################################################################
@@ -69,7 +69,7 @@ FV = FVMAIN_COMPACT
 
 # NV_VARIABLE_STORE
 0x000e0000|0x0000e000
-gRk3399PkgTokenSpaceGuid.PcdNvStorageVariableBase|gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize
+gRk3399TokenSpaceGuid.PcdNvStorageVariableBase|gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize
 
 DATA = {
   ## This is the EFI_FIRMWARE_VOLUME_HEADER
@@ -112,11 +112,11 @@ DATA = {
 
 # NV_EVENT_LOG
 0x000ee000|0x00001000
-gRk3399PkgTokenSpaceGuid.PcdNvStorageEventLogBase|gRk3399PkgTokenSpaceGuid.PcdNvStorageEventLogSize
+gRk3399TokenSpaceGuid.PcdNvStorageEventLogBase|gRk3399TokenSpaceGuid.PcdNvStorageEventLogSize
 
 # NV_FTW_WORKING header
 0x000ef000|0x00001000
-gRk3399PkgTokenSpaceGuid.PcdNvStorageFtwWorkingBase|gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize
+gRk3399TokenSpaceGuid.PcdNvStorageFtwWorkingBase|gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize
 
 DATA = {
   # EFI_FAULT_TOLERANT_WORKING_BLOCK_HEADER->Signature = gEdkiiWorkingBlockSignatureGuid         =
@@ -131,7 +131,7 @@ DATA = {
 
 # NV_FTW_WORKING data
 0x000f0000|0x00010000
-gRk3399PkgTokenSpaceGuid.PcdNvStorageFtwSpareBase|gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize
+gRk3399TokenSpaceGuid.PcdNvStorageFtwSpareBase|gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize
 
 ################################################################################
 #

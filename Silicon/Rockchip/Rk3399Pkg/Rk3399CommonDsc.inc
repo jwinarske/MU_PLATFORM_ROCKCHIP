@@ -160,7 +160,8 @@
   # RK3399 specifics
   RkIoMuxLib|Rk3399Pkg/Library/Rk3399IoMuxLib/Rk3399IoMuxLib.inf
   Rk3399ClkPwrLib|Rk3399Pkg/Library/Rk3399ClkPwrLib/Rk3399ClkPwrLib.inf
-  SerialPortLib|RkPlatformPkg/Library/UartSerialPortLib/UartSerialPortLib.inf
+  SerialPortLib|RkPlatformPkg/Library/SerialPortLib/SerialPortLib.inf
+  UartLib|RkPlatformPkg/Library/SerialPortLib/UartLib.inf
 
   # ARM Real Time Clock
   RealTimeClockLib|RkPlatformPkg/Library/VirtualRealTimeClockLib/VirtualRealTimeClockLib.inf
@@ -415,9 +416,22 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"$(FIRMWARE_VER)"
 !endif
 
-  gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvModeEnable|TRUE
+  gArmPlatformTokenSpaceGuid.PcdCPUCorePrimaryStackSize|0x4000
+  gArmPlatformTokenSpaceGuid.PcdCPUCoreSecondaryStackSize|0x4000
 
-  gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize|0x01000000
+  #
+  # GIC500 - 0xFEE0_0000
+  #
+  gArmTokenSpaceGuid.PcdGicDistributorBase|0xFEE00000
+  gArmTokenSpaceGuid.PcdGicRedistributorsBase|0xFD460000
+
+  # ARM Architectural Timer Frequency
+  gArmTokenSpaceGuid.PcdArmArchTimerFreqInHz|24000000
+  gEmbeddedTokenSpaceGuid.PcdMetronomeTickPeriod|1000
+  gEmbeddedTokenSpaceGuid.PcdTimerPeriod|1000
+
+
+#  gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvModeEnable|TRUE
 
   gEfiMdePkgTokenSpaceGuid.PcdMaximumUnicodeStringLength|1000000
   gEfiMdePkgTokenSpaceGuid.PcdMaximumAsciiStringLength|1000000
@@ -495,39 +509,16 @@
 #
 ########################
 [PcdsFixedAtBuild.common]
-!if $(ROCKCHIP_FAMILY) == RK3399
-  #
-  # RK3399 Plaform Memory Layout
-  #                                        PcdSystemMemoryBase
-  # +-------------------+===> (0x40000000) PcdArmLcdDdrFrameBufferBase (Frame buffer)
-  # | HDMI framebuffer  |  ^
-  # |                   |  |  (0x007E9000) PcdArmLcdDdrFrameBufferSize ~8MB
-  # |                   |  v
-  # +-------------------+===> (0x407E9000) PcdGlobalDataBaseAddress
-  # | Global Data       |  ^
-  # |                   |  |  (0x00001000) PcdGlobalDataSize 4KB
-  # |                   |  v
-  # +-------------------+===> (0x407EA000) 
-  # | Operating System  |  ^
-  # | Memory            |  |
-  # |                   |  |
-  # |                   |  v
-  # +-------------------+===> (0xBE000000) PcdTrustZonePrivateMemoryBase (OPTEE image base address)
-  # | TZ Private Memory |  ^
-  # | (OPTEE)           |  |  (0x01E00000) PcdTrustZonePrivateMemorySize 30MB
-  # |                   |  v
-  # +-------------------+===> (0xBFE00000) PcdTrustZoneSharedMemoryBase (includes mobj bookkeeping page)
-  # | TZ Shared Memory  |  ^
-  # |                   |  |  (0x00200000) PcdTrustZoneSharedMemorySize 2MB
-  # |                   |  v
-  # +-------------------|===>
+
+  # Size of the region used by UEFI in permanent memory (Reserved 64MB)
+  gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize|0x04000000
 
 !if $(CONFIG_OPTEE) == TRUE
-  gOpteeClientPkgTokenSpaceGuid.PcdTrustZonePrivateMemoryBase|0xBE000000
-  gOpteeClientPkgTokenSpaceGuid.PcdTrustZonePrivateMemorySize|0x01E00000
+  gOpteeClientPkgTokenSpaceGuid.PcdTrustZonePrivateMemoryBase|0x30000000
+  gOpteeClientPkgTokenSpaceGuid.PcdTrustZonePrivateMemorySize|0x02000000
 
   #
-  # TrustZone shared memory (2Mb)
+  # TrustZone shared memory // Resize to (2Mb)
   # This memory is managed by the normal world but shared with the OpTEE OS.
   # It must match OpTEE optee_os/core/arch/arm/plat-rockchip/platform_config.h:
   #    CFG_SHMEM_START & CFG_SHMEM_SIZE
@@ -535,9 +526,8 @@
   # and we should not touch it. We will skip the first 4K of SHMEM and take that
   # into account for SHMEM size in PcdTrustZoneSharedMemorySize.
   #
-  gOpteeClientPkgTokenSpaceGuid.PcdTrustZoneSharedMemoryBase|0xBFE00000
-  gOpteeClientPkgTokenSpaceGuid.PcdTrustZoneSharedMemorySize|0x00200000
-!endif
+  gOpteeClientPkgTokenSpaceGuid.PcdTrustZoneSharedMemoryBase|0x32000000
+  gOpteeClientPkgTokenSpaceGuid.PcdTrustZoneSharedMemorySize|0x00400000
 !endif
 
   #
@@ -672,7 +662,11 @@
   #
   # PEI Phase modules
   #
+!if CONFIG_MPCORE == TRUE
+  ArmPlatformPkg/PrePi/PeiMpCore.inf
+!else
   ArmPlatformPkg/PrePi/PeiUniCore.inf
+!endif
 
   #
   # DXE

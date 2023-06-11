@@ -25,58 +25,53 @@
 #include "Rk3399ClkPwr.h"
 #include "Rk3399IoMux.h"
 
-ARM_CORE_INFO Rk3399Ppi[] =
-{
+ARM_CORE_INFO Rk3399Ppi[] = {
   {
     // Cluster 0, Core 0
-    0x0, 0x0,
+    0x0,
 
-    // MP Core MailBox Set/Get/Clear Addresses and Clear Value.
-    // Not used with i.MX8, set to 0
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (UINT64)0
+    // MP Core MailBox Set/Get/Clear Addresses and Clear Value
+    (EFI_PHYSICAL_ADDRESS)0,
+    (EFI_PHYSICAL_ADDRESS)0,
+    (EFI_PHYSICAL_ADDRESS)0,
+    (UINT64)0xFFFFFFFF
   },
 
 #if FixedPcdGet32(PcdCoreCount) > 1
   {
     // Cluster 0, Core 1
-    0x0, 0x1,
+    0x1,
 
     // MP Core MailBox Set/Get/Clear Addresses and Clear Value
-    // Not used with i.MX8, set to 0
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (UINT64)0
+    (EFI_PHYSICAL_ADDRESS)0,
+    (EFI_PHYSICAL_ADDRESS)0,
+    (EFI_PHYSICAL_ADDRESS)0,
+    (UINT64)0xFFFFFFFF
   },
 #endif // FixedPcdGet32(PcdCoreCount) > 1
 
 #if FixedPcdGet32(PcdCoreCount) > 2
   {
     // Cluster 0, Core 2
-    0x0, 0x2,
+    0x2,
 
     // MP Core MailBox Set/Get/Clear Addresses and Clear Value
-    // Not used with i.MX8, set to 0
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (UINT64)0
+    (EFI_PHYSICAL_ADDRESS)0,
+    (EFI_PHYSICAL_ADDRESS)0,
+    (EFI_PHYSICAL_ADDRESS)0,
+    (UINT64)0xFFFFFFFF
   },
 
   {
     // Cluster 0, Core 3
-    0x0, 0x3,
+    0x3,
 
     // MP Core MailBox Set/Get/Clear Addresses and Clear Value
-    // Not used with i.MX8, set to 0
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (EFI_PHYSICAL_ADDRESS)0x00000000,
-    (UINT64)0
-  }
+    (EFI_PHYSICAL_ADDRESS)0,
+    (EFI_PHYSICAL_ADDRESS)0,
+    (EFI_PHYSICAL_ADDRESS)0,
+    (UINT64)0xFFFFFFFF
+  },
 #endif // FixedPcdGet32(PcdCoreCount) > 2
 };
 
@@ -86,11 +81,13 @@ PrePeiCoreGetMpCoreInfo (
   OUT ARM_CORE_INFO           **ArmCoreTable
   )
 {
-  // Only support one cluster
-  *CoreCount    = sizeof(Rk3399Ppi) / sizeof(ARM_CORE_INFO);
-  ASSERT (*CoreCount == FixedPcdGet32 (PcdCoreCount));
-  *ArmCoreTable = Rk3399Ppi;
-  return EFI_SUCCESS;
+  if (ArmIsMpCore ()) {
+    *CoreCount    = sizeof (Rk3399Ppi) / sizeof (ARM_CORE_INFO);
+    *ArmCoreTable = Rk3399Ppi;
+    return EFI_SUCCESS;
+  } else {
+    return EFI_UNSUPPORTED;
+  }
 }
 
 ARM_MP_CORE_INFO_PPI mMpCoreInfoPpi = { PrePeiCoreGetMpCoreInfo };
@@ -109,8 +106,13 @@ ArmPlatformGetPlatformPpiList (
   OUT EFI_PEI_PPI_DESCRIPTOR  **PpiList
   )
 {
-  *PpiListSize = sizeof(gPlatformPpiTable);
-  *PpiList = gPlatformPpiTable;
+  if (ArmIsMpCore ()) {
+    *PpiListSize = sizeof (gPlatformPpiTable);
+    *PpiList     = gPlatformPpiTable;
+  } else {
+    *PpiListSize = 0;
+    *PpiList     = NULL;
+  }
 }
 
 /**
@@ -124,12 +126,6 @@ ArmPlatformInitialize (
   if (!ArmPlatformIsPrimaryCore (MpId)) {
     return RETURN_SUCCESS;
   }
-
-  // Initialize debug serial port
-  SerialPortInitialize ();
-  SerialPortWrite (
-    (UINT8 *)SERIAL_DEBUG_PORT_INIT_MSG,
-    (UINTN)sizeof(SERIAL_DEBUG_PORT_INIT_MSG));
 
   // Initialize peripherals
   RkUngateActiveClock ();

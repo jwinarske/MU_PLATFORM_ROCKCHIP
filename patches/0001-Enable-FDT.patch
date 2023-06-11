@@ -1,0 +1,37 @@
+From be22ffffcf24a0fc202b84949c77904048750726 Mon Sep 17 00:00:00 2001
+From: Joel Winarske <joel.winarske@woven-planet.global>
+Date: Sun, 11 Jun 2023 14:17:44 +0900
+Subject: [PATCH] Enable FDT
+
+Signed-off-by: Joel Winarske <joel.winarske@woven-planet.global>
+---
+ EmbeddedPkg/EmbeddedPkg.dsc | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/EmbeddedPkg/EmbeddedPkg.dsc b/EmbeddedPkg/EmbeddedPkg.dsc
+index 9f1282fe61..43b2f3dbd1 100644
+--- a/EmbeddedPkg/EmbeddedPkg.dsc
++++ b/EmbeddedPkg/EmbeddedPkg.dsc
+@@ -246,19 +246,12 @@ SafeIntLib|MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf # MU_CHANGE - CodeQL
+ 
+   EmbeddedPkg/Library/AcpiLib/AcpiLib.inf
+   EmbeddedPkg/Library/DebugAgentTimerLibNull/DebugAgentTimerLibNull.inf
+-!if $(TOOL_CHAIN_TAG) == GCC5     # MU_CHANGE - Too many external errors to deal with.
+   EmbeddedPkg/Library/FdtLib/FdtLib.inf
+-!endif                            # MU_CHANGE
+   EmbeddedPkg/Library/PrePiHobLib/PrePiHobLib.inf
+   EmbeddedPkg/Library/PrePiMemoryAllocationLib/PrePiMemoryAllocationLib.inf
+-
+-!if $(TOOL_CHAIN_TAG) == GCC5     # MU_CHANGE - Requires FdtLib, which is also broken.
+   EmbeddedPkg/Drivers/ConsolePrefDxe/ConsolePrefDxe.inf
+-!endif                            # MU_CHANGE
+   EmbeddedPkg/Drivers/DtPlatformDxe/DtPlatformDxe.inf
+-!if $(TOOL_CHAIN_TAG) == GCC5     # MU_CHANGE - Requires FdtLib, which is also broken.
+   EmbeddedPkg/Drivers/FdtClientDxe/FdtClientDxe.inf
+-!endif                            # MU_CHANGE
+ 
+   EmbeddedPkg/Drivers/NonCoherentIoMmuDxe/NonCoherentIoMmuDxe.inf {
+     <LibraryClasses>
+-- 
+2.34.1
+

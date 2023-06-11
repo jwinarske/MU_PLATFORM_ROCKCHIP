@@ -25,8 +25,10 @@
 #include "Rk3399ClkPwr.h"
 #include "Rk3399IoMux.h"
 
-ARM_CORE_INFO Rk3399Ppi[] =
-{
+#define SERIAL_DEBUG_PORT_INIT_MSG "\r\nDebug Serial Port Init\r\n"
+#define SERIAL_PORT_INIT_MSG "UART"
+
+ARM_CORE_INFO Rk3399Ppi[] = {
   {
     // Core 0
     0x0,

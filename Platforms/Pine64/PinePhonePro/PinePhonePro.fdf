@@ -24,13 +24,12 @@
 #
 ################################################################################
 
-[FD.PINEPHONEPRO]
-BaseAddress   = 0x00A00000|gArmTokenSpaceGuid.PcdFdBaseAddress
-Size          = 0x00100000|gArmTokenSpaceGuid.PcdFdSize
+[FD.PINEPHONEPRO_UEFI]
+BaseAddress   = $(FD_BASE_ADDRESS)|gArmTokenSpaceGuid.PcdFdBaseAddress
+BlockSize     = $(FD_BLOCK_SIZE)|gRk3399TokenSpaceGuid.PcdFirmwareBlockSize
+NumBlocks     = $(FD_NUM_BLOCKS)
+Size          = $(FD_SIZE)|gArmTokenSpaceGuid.PcdFdSize
 ErasePolarity = 1
-
-BlockSize     = 0x00001000|gRk3399PkgTokenSpaceGuid.PcdFirmwareBlockSize
-NumBlocks     = 0x100
 
 ################################################################################
 #
@@ -48,12 +47,27 @@ NumBlocks     = 0x100
 #
 ################################################################################
 
-#
-# UEFI image
-#
-0x00000000|0x00100000
-gArmTokenSpaceGuid.PcdFvBaseAddress|gArmTokenSpaceGuid.PcdFvSize
-FV = FVMAIN_COMPACT
+!if $(CONFIG_VOLATILE_VARSTORE) == TRUE
+
+  #
+  # UEFI image
+  #
+  0x00000000|0x000e0000
+  gArmTokenSpaceGuid.PcdFvBaseAddress|gArmTokenSpaceGuid.PcdFvSize
+  FV = FVMAIN_COMPACT
+
+#  !include VarStoreFdf.inc
+
+!else
+
+  #
+  # UEFI image
+  #
+  0x00000000|$(FD_SIZE)
+  gArmTokenSpaceGuid.PcdFvBaseAddress|gArmTokenSpaceGuid.PcdFvSize
+  FV = FVMAIN_COMPACT
+
+!endif
 
 ################################################################################
 #
@@ -98,8 +112,11 @@ READ_LOCK_STATUS   = TRUE
   #
   INF MdeModulePkg/Universal/SmbiosDxe/SmbiosDxe.inf
   INF $(BOARD_DIR)/Drivers/SmbiosPlatformDxe/SmbiosPlatformDxe.inf
-
+  #
+  # Fastboot
+  #
   INF EmbeddedPkg/Application/AndroidFastboot/AndroidFastbootApp.inf
+  INF EmbeddedPkg/Drivers/AndroidFastbootTransportUsbDxe/FastbootTransportUsbDxe.inf
 
 #  INF EmbeddedPkg/Drivers/FdtClientDxe/FdtClientDxe.inf
 #  INF EmbeddedPkg/Application/AndroidBoot/AndroidBootApp.inf
