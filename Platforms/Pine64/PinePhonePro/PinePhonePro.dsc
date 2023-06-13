@@ -28,28 +28,25 @@
   SKUID_IDENTIFIER               = DEFAULT
   FLASH_DEFINITION               = $(PLATFORM_NAME).fdf
 
-  BOARD_DIR                      = Platforms/Pine64/$(PLATFORM_NAME)
   ROCKCHIP_FAMILY                = RK3399
   BOARD_NAME                     = PINE_PHONE_PRO
   FIRMWARE_VER                   = $(PLATFORM_VERSION)
+  BOARD_DIR                      = Platforms/Pine64/$(PLATFORM_NAME)
 
   # FD_SIZE = (FD_BLOCK_SIZE * FD_NUM_BLOCKS)
   FD_BASE_ADDRESS                = 0x00A00000
-  FD_BLOCK_SIZE                  = 0x00000200
-  FD_NUM_BLOCKS                  = 0x00001000 # 0x00002000
+  FD_BLOCK_SIZE                  = 0x00001000
+  FD_NUM_BLOCKS                  = 0x00000200 # 0x00000400
   FD_SIZE                        = 0x00200000 # 0x00400000
-
 
   # TODO partition into A/B layout
 
   CONFIG_FRONTPAGE               = TRUE
   CONFIG_HEADLESS                = FALSE
-  CONFIG_INCLUDE_SHELL           = TRUE
-  CONFIG_INCLUDE_TFTP_COMMAND    = TRUE
 
-  CONFIG_MPCORE                  = TRUE
-  CONFIG_USB                     = TRUE
-  CONFIG_PCIE                    = TRUE
+  CONFIG_MPCORE                  = FALSE
+  CONFIG_USB                     = FALSE
+  CONFIG_PCIE                    = FALSE
 
   CONFIG_OPTEE                   = TRUE
   CONFIG_OPTEE_PROFILE           = FALSE
@@ -57,7 +54,9 @@
   CONFIG_SECURE_BOOT             = FALSE
   CONFIG_MEASURED_BOOT           = FALSE
 
-  CONFIG_EDK_TESTS               = TRUE
+  CONFIG_EDK_TESTS               = FALSE
+
+  EDK2_SKIP_PEICORE              = FALSE
 
   # factor out once AuthStore is implemented
   CONFIG_VOLATILE_VARSTORE       = FALSE
@@ -161,7 +160,7 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareRevision|0x00000001
 
   # System memory size (4GB)
-#  gArmTokenSpaceGuid.PcdSystemMemoryBase|0x0
+  gArmTokenSpaceGuid.PcdSystemMemoryBase|0x0
   gArmTokenSpaceGuid.PcdSystemMemorySize|0xC0000000
 #  gArmTokenSpaceGuid.PcdSystemMemorySize|0x40000000000
 
@@ -171,24 +170,16 @@
   gArmTokenSpaceGuid.PcdVFPEnabled|1
 
   #
-  # RkPlatformPkg
-  #
-
-  ## RkPlatformPkg - Serial Terminal
-
   # UART2
+  #
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase|0xFF1A0000
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialUseMmio|TRUE
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialUseHardwareFlowControl|FALSE
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialClockRate|24000000
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterStride|4
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterAccessWidth|32
-
-  gRkPlatformTokenSpaceGuid.PcdSerialRegisterBase|0xFF1A0000
-  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate|115200
-  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultDataBits|8
-  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultParity|1
-  gEfiMdePkgTokenSpaceGuid.PcdUartDefaultStopBits|1
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialClockRate|24000000
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialBaudRate|115200
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialLineControl|0x3F # 8N1
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialFifoControl|0x01 # 
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialUseHardwareFlowControl|FALSE
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialDetectCable|FALSE
 
   ## RkPlatformPackage - Debug UART instance UART1
   gRkPlatformTokenSpaceGuid.PcdKdUartInstance|1
@@ -248,6 +239,7 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdSmbiosDocRev|0x0
 
 [PcdsPatchableInModule]
+
   # Use system default resolution
   gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|0
   gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|0

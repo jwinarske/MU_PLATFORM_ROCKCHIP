@@ -99,7 +99,6 @@
   #                     Kernel debugger. 1, 2, 3, 4, or 5
   #
   gRkPlatformTokenSpaceGuid.PcdKdUartInstance|1|UINT32|0x11
-  gRkPlatformTokenSpaceGuid.PcdSerialRegisterBase|0x00000000|UINT32|0x12
 
   #
   # Global data area

@@ -1,3 +1,7 @@
+[Defines]
+
+  CONFIG_INCLUDE_SHELL           = TRUE
+  CONFIG_INCLUDE_TFTP_COMMAND    = FALSE
 
 [LibraryClasses.common]
   #

@@ -25,9 +25,6 @@
 #include "Rk3399ClkPwr.h"
 #include "Rk3399IoMux.h"
 
-#define SERIAL_DEBUG_PORT_INIT_MSG "\r\nDebug Serial Port Init\r\n"
-#define SERIAL_PORT_INIT_MSG "UART"
-
 ARM_CORE_INFO Rk3399Ppi[] = {
   {
     // Core 0
@@ -126,12 +123,6 @@ ArmPlatformInitialize (
   if (!ArmPlatformIsPrimaryCore (MpId)) {
     return RETURN_SUCCESS;
   }
-
-  // Initialize debug serial port
-  SerialPortInitialize ();
-  SerialPortWrite (
-    (UINT8 *)SERIAL_DEBUG_PORT_INIT_MSG,
-    (UINTN)sizeof(SERIAL_DEBUG_PORT_INIT_MSG));
 
   // Initialize peripherals
   RkUngateActiveClock ();

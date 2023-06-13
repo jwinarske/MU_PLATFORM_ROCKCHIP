@@ -116,13 +116,15 @@
   #
 
 !if $(CONFIG_OPTEE) == TRUE
-  INF Microsoft/OpteeClientPkg/Application/OpteeClientApiTest/OpteeClientApiTest.inf
-#  INF SecurityPkg/Application/VariableAuthTestDxe/VariableAuthTestDxe.inf
+  !if $(CONFIG_EDK_TESTS) == TRUE
+    INF Microsoft/OpteeClientPkg/Application/OpteeClientApiTest/OpteeClientApiTest.inf
+  #  INF SecurityPkg/Application/VariableAuthTestDxe/VariableAuthTestDxe.inf
 
-  # Hello World TA UUID in UEFI format: 8aaaf200-2450-11e4-abe2-0002a5d5c51b
-  FILE FREEFORM = 8AAAF200-2450-11E4-ABE2-0002A5D5C51B {
-    SECTION RAW = Silicon/OP-TEE/optee_examples/hello_world/ta/8aaaf200-2450-11e4-abe2-0002a5d5c51b.ta
-  }
+    # Hello World TA UUID in UEFI format: 8aaaf200-2450-11e4-abe2-0002a5d5c51b
+    FILE FREEFORM = 8AAAF200-2450-11E4-ABE2-0002A5D5C51B {
+      SECTION RAW = Silicon/OP-TEE/optee_examples/hello_world/ta/8aaaf200-2450-11e4-abe2-0002a5d5c51b.ta
+    }
+  !endif
 !endif
 
 !if $(CONFIG_MEASURED_BOOT) == TRUE
@@ -167,6 +169,8 @@
 !endif
 
 [FV.FVMAIN_COMPACT]
+# FvBaseAddress     = 0xB0000000
+# FvForceRebase     = TRUE
 FvAlignment        = 8
 ERASE_POLARITY     = 1
 MEMORY_MAPPED      = TRUE
@@ -184,8 +188,8 @@ READ_STATUS        = TRUE
 READ_LOCK_CAP      = TRUE
 READ_LOCK_STATUS   = TRUE
 
-!if CONFIG_MPCORE == TRUE
-  INF ArmPlatformPkg/PrePi/PeiMpCore.inf
+!if $(CONFIG_MPCORE) == TRUE
+  INF ArmPlatformPkg/PrePi/PeiMPCore.inf
 !else
   INF ArmPlatformPkg/PrePi/PeiUniCore.inf
 !endif

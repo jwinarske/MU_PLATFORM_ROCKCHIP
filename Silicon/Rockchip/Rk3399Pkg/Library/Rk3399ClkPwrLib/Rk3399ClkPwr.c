@@ -21,6 +21,7 @@
 #include <Rk3399.h>
 #include <Rk3399ClkPwrReg.h>
 
+#if 0 //TODO
 //
 // List of Low Power Clock Gates to enable that have not yet been enabled
 //
@@ -130,14 +131,40 @@ RkActiveClock[] = {
 //  101, // Mipi_csi1    0x4650
 //  102, // Mipi_csi2    0x4660
 };
+#endif //TODO
 
+VOID
+UngateUart2Clk (
+  VOID
+  )
+{
+#if 0 //TODO
+  UINT32 GrfBase = (UINT32)PcdGet32(PcdGrfRegisterBase);
+
+  if (!ArmPlatformIsPrimaryCore (MpId)) {
+    return RETURN_SUCCESS;
+  }
+
+
+  #define CRU_CLKGATE_CON(n) (0x300 + n * 4)
+
+  /* restore uart clk */
+	MmioWrite32(CRU_BASE + CRU_CLKGATE_CON(16), 0x20000000);
+	MmioWrite32(CRU_BASE + CRU_CLKGATE_CON(2), 0x00040000);
+
+  // UART iomux
+  MmioWrite32(GrfBase + GRF_GPIO4C_IOMUX, (0xf << (6 + 16)) | (0x5 << 6));
+#endif //TODO
+}
 
 VOID
 RkUngateActiveClock ( 
   VOID
   )
 {
-  #if 0
+  UngateUart2Clk ();
+
+#if 0 //TODO
   UINT32 index;
 
   // TODO: determine correct clock domain settings
@@ -160,7 +187,7 @@ RkUngateActiveClock (
     DEBUG ((EFI_D_INFO, "value after ungating %08x\n",
       MmioRead32 (IMX_CCM_CCGR(RkActiveClock[index]))));
   }
-  #endif
+#endif //TODO
 }
 
 VOID
@@ -170,6 +197,10 @@ RkSetAudioPllClockRate (
   UINT32 PostDividerAudioVal
   )
 {
+  (VOID)TargetClockRate;
+  (VOID)PreDividerAudioVal;
+  (VOID)PostDividerAudioVal;
+#if 0 //TODO
   IMX_CCM_PLL_AUDIO_CFG0_REG pllAudioCfg0Reg;
   IMX_CCM_PLL_AUDIO_CFG1_REG pllAudioCfg1Reg;
   IMX_CCM_TARGET_ROOT_REG ccmTargetRootAudioMclkReg;
@@ -302,6 +333,7 @@ RkSetAudioPllClockRate (
   DEBUG ((DEBUG_INIT, "IMX_CCM_PLL_CTRL(35) 0x%08x : 0x%08x\n", IMX_CCM_PLL_CTRL(35), MmioRead32 (IMX_CCM_PLL_CTRL(35))));
   DEBUG ((DEBUG_INIT, "IMX_CCM_CCGR(52)  0x%08x : 0x%08x\n", IMX_CCM_CCGR(52), MmioRead32 (IMX_CCM_CCGR(52))));
   DEBUG_CODE_END ();
+#endif //TODO
 }
 
 
@@ -310,6 +342,7 @@ Rk3399SetSAI2ClockRate (
   UINT32 ClockRate
   )
 {
+#if 0 //TODO
   UINT32 targetFreq;
   UINT32 preDivSelect;
   UINT32 postDivSelect;
@@ -331,7 +364,6 @@ Rk3399SetSAI2ClockRate (
     targetFreq,
     preDivSelect,
     postDivSelect);
-
+#endif //TODO
   return EFI_SUCCESS;
 }
-

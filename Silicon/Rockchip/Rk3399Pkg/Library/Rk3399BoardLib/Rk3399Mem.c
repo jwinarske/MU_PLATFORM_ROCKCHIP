@@ -27,7 +27,7 @@
 
 ARM_MEMORY_REGION_DESCRIPTOR Rk3399MemoryDescriptor[] =
 {
-#ifndef CONFIG_HEADLESS
+#if 0 //ndef CONFIG_HEADLESS
   // Main memory
   {
     FixedPcdGet64 (PcdSystemMemoryBase) + FixedPcdGet64 (PcdArmLcdDdrFrameBufferSize),
@@ -42,7 +42,7 @@ ARM_MEMORY_REGION_DESCRIPTOR Rk3399MemoryDescriptor[] =
     FixedPcdGet64 (PcdArmLcdDdrFrameBufferSize),
     ARM_MEMORY_REGION_ATTRIBUTE_UNCACHED_UNBUFFERED,
   },
-#else
+#endif
   // Main memory
   {
     FixedPcdGet64 (PcdSystemMemoryBase),
@@ -50,7 +50,7 @@ ARM_MEMORY_REGION_DESCRIPTOR Rk3399MemoryDescriptor[] =
     FixedPcdGet64 (PcdSystemMemorySize),
     MEMORY_ATTRIBUTES_PCDCACHEENABLE,
   },
-#endif
+//#endif
 #ifdef CONFIG_OPTEE
   {
     FixedPcdGet64 (PcdTrustZoneSharedMemoryBase),
@@ -60,10 +60,76 @@ ARM_MEMORY_REGION_DESCRIPTOR Rk3399MemoryDescriptor[] =
   },
 #endif
   {
-    DEV_RNG0_BASE,
-    DEV_RNG0_BASE,
-    DEV_RNG0_SIZE,
+    GIC500_BASE,
+    GIC500_BASE,
+    GIC500_SIZE,
     ARM_MEMORY_REGION_ATTRIBUTE_DEVICE,
+  },
+  {
+    UART2_BASE,
+    UART2_BASE,
+    UART2_SIZE,
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE,
+  },
+  {
+    GRF_BASE,
+    GRF_BASE,
+    GRF_SIZE,
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE,
+  },
+  {
+    CRU_BASE,
+    CRU_BASE,
+    CRU_SIZE,
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE,
+  },
+  {
+    PMUCRU_BASE,
+    PMUCRU_BASE,
+    PMUCRU_SIZE,
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE,
+  },
+  {
+    PMUGRF_BASE,
+    PMUGRF_BASE,
+    PMUGRF_SIZE,
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE,
+  },
+  {
+    GPIO0_BASE,
+    GPIO0_BASE,
+    GPIO0_SIZE,
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE,
+  },
+  {
+    GPIO1_BASE,
+    GPIO1_BASE,
+    GPIO1_SIZE,
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE,
+  },
+  {
+    GPIO2_BASE,
+    GPIO2_BASE,
+    GPIO2_SIZE,
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE,
+  },
+  {
+    GPIO3_BASE,
+    GPIO3_BASE,
+    GPIO3_SIZE,
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE,
+  },
+  {
+    GPIO4_BASE,
+    GPIO4_BASE,
+    GPIO4_SIZE,
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE,
+  },
+  {
+    PWM_BASE,
+    PWM_BASE,
+    PWM_SIZE,
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE
   },
   {
     //
