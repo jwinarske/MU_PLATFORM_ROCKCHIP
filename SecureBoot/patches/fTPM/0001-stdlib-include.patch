@@ -1,0 +1,25 @@
+From b4bcbe61303ce4ec0f5a4f380b2d70068ffd41cd Mon Sep 17 00:00:00 2001
+From: Joel Winarske <joel.winarske@gmail.com>
+Date: Mon, 8 Jul 2024 14:29:13 -0700
+Subject: [PATCH] stdlib include
+
+Signed-off-by: Joel Winarske <joel.winarske@gmail.com>
+---
+ wolfcrypt/src/memory.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/wolfcrypt/src/memory.c b/wolfcrypt/src/memory.c
+index 2352c5e00..3511002c8 100644
+--- a/wolfcrypt/src/memory.c
++++ b/wolfcrypt/src/memory.c
+@@ -24,6 +24,7 @@
+     #include <config.h>
+ #endif
+ 
++#include <stdlib.h>
+ #include <wolfssl/wolfcrypt/settings.h>
+ 
+ /* check old macros @wc_fips */
+-- 
+2.45.2
+

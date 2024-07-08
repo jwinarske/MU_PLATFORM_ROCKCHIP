@@ -6,10 +6,16 @@ set -e
 VERBOSE=0
 
 # For TA SDK 32 flavor
-CROSS_COMPILE_32_HFP=$HOME/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf/bin
+CROSS_COMPILE_32_HFP=/mnt/raid10/toolchains/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-linux-gnueabihf/bin
 
 # For SoC Cortex-M0
-CROSS_COMPILE_32=$HOME/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi/bin
+CROSS_COMPILE_32=/mnt/raid10/toolchains/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/bin
+
+
+OPTEE_VERSION=4.3.0-rc1
+FTPM_VERSION=e9fc7b89d865536c46deb63f9c7d0121a3ded49c
+TFA_VERSION=lts-v2.10.4
+
 
 # UEFI build type: RELEASE_GCC5 or DEBUG_GCC5
 UEFI_BUILD_TYPE=DEBUG_GCC5
@@ -19,6 +25,9 @@ CWD=`pwd`
 # OP-TEE repos
 OPTEE_OS_DIR=$CWD/../Silicon/OP-TEE/optee_os
 OPTEE_EXAMPLES_DIR=$CWD/../Silicon/OP-TEE/optee_examples
+
+# fTPM repo
+FTPM_DIR=$CWD/../Silicon/MSFT/ms-tpm-20-ref
 
 # UEFI Volume Info tool
 UEFI_TOOLS_DIR=$CWD/../MU_BASECORE/BaseTools/Bin/Mu-Basetools_extdep/Linux-x86
@@ -44,7 +53,8 @@ build_ta_sdk() {
   echo " => Building Trusted App SDK"
 
   pushd $OPTEE_OS_DIR
-  git reset --hard e8abbcfbdf63437a640d5fd87b7e191caab6445e
+  git reset --hard
+  git checkout $OPTEE_VERSION
   rm -rf out |true
 
   PATH=$PATH:${CROSS_COMPILE_32_HFP} \
@@ -77,12 +87,13 @@ build_ta_sdk() {
 }
 
 compile_optee_example() {
+
   rm -rf dyn_list |true 
   make \
-  CROSS_COMPILE=aarch64-linux-gnu- \
-  PLATFORM=rockchip-rk3399 \
-  TA_DEV_KIT_DIR=$CWD/../../../optee_os/out/arm-plat-rockchip/export-ta_arm64 \
-  V=$VERBOSE -j
+    CROSS_COMPILE=aarch64-linux-gnu- \
+    PLATFORM=rockchip-rk3399 \
+    TA_DEV_KIT_DIR=$OPTEE_OS_DIR/out/arm-plat-rockchip/export-ta_arm64 \
+    V=$VERBOSE -j
 
   mkdir -p ${TA_STAGING_DIR}
   cp *.stripped.elf ${TA_STAGING_DIR}
@@ -94,6 +105,7 @@ build_optee_examples() {
 
   pushd $OPTEE_EXAMPLES_DIR
   git reset --hard
+  git checkout $OPTEE_VERSION
 
   pushd acipher/ta
   compile_optee_example
@@ -130,31 +142,39 @@ build_optee_examples() {
   find -iname *.stripped.elf
 
   popd
+  echo " => Done Building optee_examples (TA)"
 }
 
 build_ftpm() {
   echo " => Building fTPM (TA)"
 
-  pushd ../Silicon/MSFT/ms-tpm-20-ref/
+  pushd $FTPM_DIR
 
-  git submodule update --init --recursive
   git reset --hard
+  git checkout $FTPM_VERSION
+  git submodule update --init --recursive
   git apply ../../../SecureBoot/patches/fTPM/0001-add-enum-to-ta-flags.patch
+  git apply ../../../SecureBoot/patches/fTPM/0001-roll-fTPM.patch
+  
+  pushd external/wolfssl
+  git reset --hard 9c87f979a7f1d3a6d786b260653d566c1d31a1c4
+  git apply ../../../../../SecureBoot/patches/fTPM/0001-stdlib-include.patch
+  popd
 
   pushd Samples/ARM32-FirmwareTPM/optee_ta
 
   rm -rf out |true
   
   make \
-  TA_CROSS_COMPILE=aarch64-linux-gnu- \
-  TA_CPU=cortex-a53 \
-  CFG_FTPM_USE_WOLF=y \
-  CFG_ARM64_ta_arm64=y \
-  TA_DEV_KIT_DIR=$OPTEE_OS_DIR/out/arm-plat-rockchip/export-ta_arm64 \
-  OPTEE_CLIENT_EXPORT=$OPTEE_OS_DIR/out/usr/ \
-  TEEC_EXPORT=$OPTEE_OS_DIR/out/usr/ \
-  -I$OPTEE_OS_DIR \
-  all -j
+    TA_CROSS_COMPILE=aarch64-linux-gnu- \
+    CFG_ARM64_ta_arm64=y \
+    TA_CPU=cortex-a53 \
+    CFG_FTPM_USE_WOLF=n \
+    TA_DEV_KIT_DIR=$OPTEE_OS_DIR/out/arm-plat-rockchip/export-ta_arm64 \
+    OPTEE_CLIENT_EXPORT=$OPTEE_OS_DIR/out/usr/ \
+    TEEC_EXPORT=$OPTEE_OS_DIR/out/usr/ \
+    -I$OPTEE_OS_DIR \
+    all -j V=$VERBOSE FAIL_TRACE=1
 
   elf=`find -iname bc50d971-d4c9-42c4-82cb-343fb7f37896.stripped.elf`
   cp $elf ${TA_STAGING_DIR}
@@ -212,7 +232,9 @@ build_atf() {
   echo " => Building bl31.elf"
 
   pushd ../Silicon/Arm/TFA
-  git reset --hard d3e71ead6ea5bc3555ac90a446efec84ef6c6122
+
+  git reset --hard
+  git checkout $TFA_VERSION
   rm -rf plat/rockchip/rk3399/include/shared/bl32_param.h |true
   git apply ../../../SecureBoot/patches/0001-USB-load-to-RAM-config.patch
 

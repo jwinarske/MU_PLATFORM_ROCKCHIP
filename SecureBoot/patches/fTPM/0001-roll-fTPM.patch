@@ -1,0 +1,113 @@
+From 8019f143bbb024f7a2cc838a2138fd6d24ce6ad8 Mon Sep 17 00:00:00 2001
+From: Joel Winarske <joel.winarske@gmail.com>
+Date: Mon, 8 Jul 2024 14:30:35 -0700
+Subject: [PATCH] roll fTPM
+
+Signed-off-by: Joel Winarske <joel.winarske@gmail.com>
+---
+ .../ARM32-FirmwareTPM/optee_ta/fTPM/fTPM.c    | 16 +++++++++++
+ .../optee_ta/fTPM/platform/NVMem.c            |  3 +-
+ .../optee_ta/fTPM/platform/include/Admin.h    | 28 ++++++++++++++++++-
+ 3 files changed, 45 insertions(+), 2 deletions(-)
+
+diff --git a/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/fTPM.c b/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/fTPM.c
+index 65d4497..d6c60f3 100644
+--- a/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/fTPM.c
++++ b/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/fTPM.c
+@@ -47,6 +47,22 @@
+ 
+ #define TA_ALL_PARAM_TYPE(type) TEE_PARAM_TYPES(type, type, type, type)
+ 
++void _admin__NvInitState();
++
++int _admin__PPICommand(
++    UINT32 CommandSize,
++    UINT8 *CommandBuffer,
++    UINT32 *ResponseSize,
++    UINT8 **ResponseBuffer
++);
++
++int _admin__PPIRequest(
++    UINT32  CommandSize,
++    UINT8   *CommandBuffer,
++    UINT32  *ResponseSize,
++    UINT8   **ResponseBuffer
++);
++
+ //
+ // Ensure we have only one active session
+ //
+diff --git a/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/platform/NVMem.c b/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/platform/NVMem.c
+index 23db9d0..f30a118 100644
+--- a/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/platform/NVMem.c
++++ b/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/platform/NVMem.c
+@@ -49,6 +49,7 @@
+ #include <tee_internal_api.h>
+ #include <tee_internal_api_extensions.h>
+ 
++
+ //
+ // Overall size of NV, not just the TPM's NV storage
+ //
+@@ -211,7 +212,7 @@ _plat__NvInitFromStorage()
+ 			Result = TEE_ReadObjectData(s_NVStore[i],
+ 										(void *)&(s_NV[i * NV_BLOCK_SIZE]),
+ 										NV_BLOCK_SIZE,
+-										&bytesRead);
++										(size_t*)&bytesRead);
+ 
+ 			// Give up on failed or incomplete reads.
+ 			if ((Result != TEE_SUCCESS) || (bytesRead != NV_BLOCK_SIZE)) {
+diff --git a/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/platform/include/Admin.h b/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/platform/include/Admin.h
+index 84efcaf..9d4623e 100644
+--- a/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/platform/include/Admin.h
++++ b/Samples/ARM32-FirmwareTPM/optee_ta/fTPM/platform/include/Admin.h
+@@ -48,13 +48,15 @@
+ #include "TpmProfile.h"
+ #include "TpmSal.h"
+ #include "TpmError.h"
++#include "TpmFail_fp.h"
+ 
+ // Parameter reference and types from ref impl headers
+ #ifndef UNREFERENCED_PARAMETER
+ #define UNREFERENCED_PARAMETER(a) do { (void)(a); } while (0)
+ #endif
+ 
+-#define FAIL(errorCode) (TpmFail(__FUNCTION__, __LINE__, errorCode))
++//#define FAIL(errorCode) (TpmFail(__FUNCTION__, __LINE__, errorCode))
++#define FAIL(errorCode) (TpmFail(errorCode))
+ 
+ #if defined(EMPTY_ASSERT)
+ #define pAssert(a)  ((void)0)
+@@ -227,4 +229,28 @@ _admin__PPICommand(
+     __deref_out_ecount(*ResponseSize) UINT8 **ResponseBuffer
+ );
+ 
++int _plat__NvCommit();
++
++void _plat__NvMemoryRead(
++    unsigned int     startOffset,   // IN: read start
++    unsigned int     size,          // IN: size of bytes to read
++    void            *data           // OUT: data buffer
++    );
++
++void _plat__NvMemoryWrite(
++    unsigned int     startOffset,   // IN: write start
++    unsigned int     size,          // IN: size of bytes to write
++    void            *data           // OUT: data buffer
++);
++
++int32_t
++_plat__GetEntropy(
++    unsigned char       *entropy,           // output buffer
++    uint32_t             amount             // amount requested
++    );
++
++UINT16 ByteArrayToUint16(BYTE* a);
++
++UINT32 ByteArrayToUint32(BYTE* a);
++
+ #endif
+-- 
+2.45.2
+
